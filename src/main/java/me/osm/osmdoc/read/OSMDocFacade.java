@@ -14,6 +14,7 @@ import me.osm.osmdoc.model.Fref;
 import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.LangString;
+import me.osm.osmdoc.model.MoreTags;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
@@ -208,6 +209,16 @@ public class OSMDocFacade {
 			}
 		}
 		
+		return result;
+	}
+
+	public Set<String> getMoreTagsKeys(Feature f) {
+		Set<String> result = new HashSet<String>();
+		if(f.getMoreTags() != null) {
+			for(Tag tag : f.getMoreTags().getTag()) {
+				result.add(tag.getKey().getValue());
+			}
+		}
 		return result;
 	}
 	
