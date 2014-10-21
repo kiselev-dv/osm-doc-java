@@ -13,6 +13,7 @@ import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Fref;
 import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
+import me.osm.osmdoc.model.LangString;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
@@ -202,7 +203,9 @@ public class OSMDocFacade {
 		List<String> result = new ArrayList<String>();
 		for(String lang : L10n.supported) {
 			result.add(getTranslatedTitle(f, Locale.forLanguageTag(lang)));
-			
+			for(LangString alias : f.getAlias()) {
+				result.add(alias.getValue());
+			}
 		}
 		
 		return result;
