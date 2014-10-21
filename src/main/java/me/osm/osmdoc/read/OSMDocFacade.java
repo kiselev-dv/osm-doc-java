@@ -199,7 +199,13 @@ public class OSMDocFacade {
 
 	public List<String> listPoiClassNames(Feature f) {
 		
-		return null;
+		List<String> result = new ArrayList<String>();
+		for(String lang : L10n.supported) {
+			result.add(getTranslatedTitle(f, Locale.forLanguageTag(lang)));
+			
+		}
+		
+		return result;
 	}
 	
 }
