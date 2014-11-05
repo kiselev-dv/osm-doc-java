@@ -17,6 +17,7 @@ import javax.xml.bind.Unmarshaller;
 import me.osm.osmdoc.model.DocPart;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Hierarchy;
+import me.osm.osmdoc.model.Trait;
 
 public class DOCFileReader extends AbstractReader {
 	
@@ -25,6 +26,8 @@ public class DOCFileReader extends AbstractReader {
 	private Map<String, Feature> featureByName = new HashMap<String, Feature>();
 
 	private Map<String, Hierarchy> hierarchy2Name;
+
+	private Map<String, Trait> traitByName;
 	
 	public DOCFileReader(String osmDocXML) {
 		try {
@@ -51,6 +54,11 @@ public class DOCFileReader extends AbstractReader {
 			hierarchy2Name = new HashMap<String, Hierarchy>();
 			for(Hierarchy h : doc.getHierarchy()) {
 				hierarchy2Name.put(h.getName(), h);
+			}
+
+			traitByName = new HashMap<String, Trait>();
+			for(Trait t : doc.getTrait()) {
+				traitByName.put(t.getName(), t);
 			}
 			
 		}
@@ -98,6 +106,11 @@ public class DOCFileReader extends AbstractReader {
 		}
 		
 		return hierarchy2Name.get(name);
+	}
+
+	@Override
+	public Map<String, Trait> getTraits() {
+		return traitByName;
 	}
 
 }

@@ -2,9 +2,11 @@ package me.osm.osmdoc.read;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Hierarchy;
+import me.osm.osmdoc.model.Trait;
 
 public interface DOCReader {
 
@@ -13,9 +15,10 @@ public interface DOCReader {
 	public Collection<? extends Feature> getHierarcyBranch(
 			String hierarchyName, String branch);
 
-	public abstract List<Hierarchy> listHierarchies();
+	public List<Hierarchy> listHierarchies();
 
-	public abstract Hierarchy getHierarchy(String name);
+	public Hierarchy getHierarchy(String name);
 	
-
+	public Map<String, Trait> getTraits();
+	
 }

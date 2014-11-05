@@ -3,12 +3,15 @@ package me.osm.osmdoc.read;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import me.osm.osmdoc.localization.L10n;
+import me.osm.osmdoc.model.Choise;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Fref;
 import me.osm.osmdoc.model.Group;
@@ -18,6 +21,7 @@ import me.osm.osmdoc.model.MoreTags;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
+import me.osm.osmdoc.model.Trait;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -212,14 +216,49 @@ public class OSMDocFacade {
 		return result;
 	}
 
-	public Set<String> getMoreTagsKeys(Feature f) {
-		Set<String> result = new HashSet<String>();
+	public LinkedHashMap<String, Tag> getMoreTags(Feature f) {
+		LinkedHashMap<String, Tag> result = new LinkedHashMap<>();
+
+		//Get more tags from traits
+		for(String trait : f.getTrait()) {
+			collectMoreTags(trait, new HashSet<String>(), result);
+		}
+		
+		//Get more tags from feture
 		if(f.getMoreTags() != null) {
 			for(Tag tag : f.getMoreTags().getTag()) {
-				result.add(tag.getKey().getValue());
+				result.put(tag.getKey().getValue(), tag);
 			}
 		}
+		
 		return result;
+	}
+
+	private void collectMoreTags(String traitName, HashSet<String> visitedTraits,
+			LinkedHashMap<String, Tag> tags) {
+		
+		Trait trait = docReader.getTraits().get(traitName);
+		if(trait != null && visitedTraits.add(traitName)) {
+			for(String extend : trait.getExtends()) {
+				collectMoreTags(extend, visitedTraits, tags);
+			}
+			
+			if(trait.getMoreTags() != null) {
+				for(Tag tag : trait.getMoreTags().getTag()) {
+					if(!tags.containsKey(tag.getKey().getValue())) {
+						tags.put(tag.getKey().getValue(), tag);
+					}
+				}
+				for(Choise ch : trait.getMoreTags().getChoise()) {
+					for(Tag tag : ch.getTag()) {
+						if(!tags.containsKey(tag.getKey().getValue())) {
+							tags.put(tag.getKey().getValue(), tag);
+						}
+					}
+				}
+				
+			}
+		}
 	}
 	
 }

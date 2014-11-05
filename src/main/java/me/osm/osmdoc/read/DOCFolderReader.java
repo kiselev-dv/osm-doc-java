@@ -15,11 +15,13 @@ import javax.xml.bind.Unmarshaller;
 import me.osm.osmdoc.model.DocPart;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Hierarchy;
+import me.osm.osmdoc.model.Trait;
 
 public class DOCFolderReader extends AbstractReader {
 	
 	private Map<String, Feature> featureByName;
 	private Map<String, Hierarchy> hierarchies = new HashMap<String, Hierarchy>();
+	private Map<String, Trait> traitByName = new HashMap<String, Trait>();
 
 	public DOCFolderReader(String path) {
 		
@@ -60,6 +62,10 @@ public class DOCFolderReader extends AbstractReader {
 				hierarchies.put(h.getName(), h);
 			}
 			
+			for(Trait t : doc.getTrait()) {
+				traitByName.put(t.getName(), t);
+			}
+			
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -94,5 +100,10 @@ public class DOCFolderReader extends AbstractReader {
 		}
 		
 		return hierarchies.get(name);
+	}
+
+	@Override
+	public Map<String, Trait> getTraits() {
+		return traitByName;
 	}
 }
