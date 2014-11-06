@@ -227,6 +227,7 @@ public class OSMDocFacade {
 
 		//Get more tags from traits
 		for(String trait : f.getTrait()) {
+			trait = StringUtils.strip(trait);
 			collectMoreTags(trait, new HashSet<String>(), result);
 		}
 		
@@ -240,8 +241,9 @@ public class OSMDocFacade {
 		return result;
 	}
 
-	public JSONObject parseMoreTags(Feature f, Map<String, String> tags, 
+	public JSONObject parseMoreTags(Feature f, JSONObject properties, 
 			TagsStatisticCollector statistics) {
+		
 		LinkedHashMap<String, Tag> moreTags = getMoreTags(f);
 		JSONObject result = new JSONObject();
 		
@@ -250,7 +252,8 @@ public class OSMDocFacade {
 			String key = template.getKey();
 			Tag tag = template.getValue();
 			
-			String rawValue = tags.get(key);
+			Object o = properties.opt(key);
+			String rawValue = (o != null ? o.toString() : null);
 
 			//value founded
 			if(StringUtils.isNotBlank(rawValue)) {
@@ -307,6 +310,7 @@ public class OSMDocFacade {
 		Trait trait = docReader.getTraits().get(traitName);
 		if(trait != null && visitedTraits.add(traitName)) {
 			for(String extend : trait.getExtends()) {
+				extend = StringUtils.strip(extend);
 				collectMoreTags(extend, visitedTraits, tags);
 			}
 			

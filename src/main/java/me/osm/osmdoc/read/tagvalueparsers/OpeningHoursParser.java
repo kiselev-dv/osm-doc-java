@@ -14,13 +14,14 @@ import org.json.JSONObject;
 public class OpeningHoursParser implements TagValueParser {
 
 	
-	private static final String[] DAYS_ARRAY = new String[]{"Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"};
+	private static final String[] DAYS_ARRAY = new String[]{"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
 	
 	private static final Set<String> DAYS = new HashSet<String>(Arrays.asList(DAYS_ARRAY));
 
 	@Override
 	public Object parse(String rawValue) {
 		
+		rawValue = rawValue.toUpperCase();
 		
 		JSONObject result = new JSONObject();
 		
@@ -38,7 +39,12 @@ public class OpeningHoursParser implements TagValueParser {
 		//Mo-Fr 08:00-13:00,14:00-20:00; Sa 09:00-13:00,14:00-18:00; Su off
 		//09:00-21:00
 		//Mo-Su␣09:00-21:00
-		String[] days = StringUtils.split(rawValue, ';');
+		//Tu-Fr 09:00-14:00,15:00-17:00; Sa 09:00-14:00,15:00-16:00; Mo,Su off
+		//Mo-Tu,Th-Fr 09:00-13:00,14:00-17:00; We 14:00-17:00
+		//Mo,We-Su 12:00-18:00; Tu off
+		
+//		String[] days = rawValue.split("(,|;|\\s)\\s*(?=(Mo|Tu|We|Th|Fr|Sa|Su))");
+		String[] days = rawValue.split("(?<=(\\d))(,|;|\\s)\\s*(?=(MO|TU|WE|TH|FR|SA|SU))");
 
 		for(String byDay : days) {
 			byDay = StringUtils.strip(byDay);
@@ -55,11 +61,17 @@ public class OpeningHoursParser implements TagValueParser {
 					
 					String[] daysOfWeek = getDays(split[0]);
 					
-					if(daysOfWeek == null) {
+					if(daysOfWeek == null || daysOfWeek.length == 0) {
 						return null;
 					}
 					
-					int[] hours = parseHours(byDay);
+					String hoursString = StringUtils.remove(byDay, split[0]);
+					
+					if(hoursString.toLowerCase().contains("off")) {
+						continue;
+					}
+					
+					int[] hours = parseHours(hoursString);
 					if(hours == null) {
 						return null;
 					}
@@ -83,51 +95,56 @@ public class OpeningHoursParser implements TagValueParser {
 			
 		}
 		
-		
-		
 		return result;
 	}
 
 	private String[] getDays(String string) {
-		if(string.contains("-")) {
-			String[] split = StringUtils.split(string, '-');
+		List<String> result = new ArrayList<String>(7);
+
+		String[] parts = StringUtils.split(string, ",;");
+		for(String prt: parts) {
+			String part = StringUtils.strip(prt);
 			
-			if(split.length != 2) {
-				return null;
-			}
-			
-			int firstIndex = ArrayUtils.indexOf(DAYS_ARRAY, split[0]);
-			int lastIndex = ArrayUtils.indexOf(DAYS_ARRAY, split[1]);
-			
-			if(firstIndex == ArrayUtils.INDEX_NOT_FOUND || lastIndex == ArrayUtils.INDEX_NOT_FOUND ){
-				return null;
-			}
-			
-			List<String> result = new ArrayList<String>(7);
-			
-			int i = firstIndex;
-			while(true) {
-				result.add(DAYS_ARRAY[i]);
+			if(part.contains("-")) {
+				String[] split = StringUtils.split(part, '-');
 				
-				if(i == lastIndex) {
-					break;
+				if(split.length != 2) {
+					continue;
 				}
 				
-				i++;
-				if(i == DAYS_ARRAY.length) {
-					i = 0;
+				int firstIndex = ArrayUtils.indexOf(DAYS_ARRAY, split[0]);
+				int lastIndex = ArrayUtils.indexOf(DAYS_ARRAY, split[1]);
+				
+				if(firstIndex == ArrayUtils.INDEX_NOT_FOUND || lastIndex == ArrayUtils.INDEX_NOT_FOUND ){
+					return null;
+				}
+				
+				
+				int i = firstIndex;
+				while(true) {
+					result.add(DAYS_ARRAY[i]);
+					
+					if(i == lastIndex) {
+						break;
+					}
+					
+					i++;
+					if(i == DAYS_ARRAY.length) {
+						i = 0;
+					}
 				}
 			}
-			
-			return (String[]) result.toArray();
-			
-		}
-		else {
-			String strip = StringUtils.strip(string);
-			if(DAYS.contains(strip)) {
-				return new String[]{strip};
+			else {
+				if(DAYS.contains(part)) {
+					result.add(part);
+				}
 			}
 		}
+		
+		if(!result.isEmpty()) {
+			return result.toArray(new String[result.size()]);
+		}
+		
 		
 		return null;
 	}
@@ -136,16 +153,27 @@ public class OpeningHoursParser implements TagValueParser {
 		
 		List<Integer> result = new ArrayList<Integer>();
 		
-		String[] periods = StringUtils.split(string, ',');
+		String[] periods = StringUtils.split(string, ",;");
 		for(String period : periods) {
 			period = StringUtils.strip(period);
 			
-			for(String s : StringUtils.split(string, '-')) {
-				result.add(Integer.decode(s.substring(0, 2)));
+			for(String s : StringUtils.split(period, '-')) {
+				s = StringUtils.strip(s);
+				try {
+					String[] hm = StringUtils.split(s, ':');
+					result.add(Integer.parseInt(hm[0]));
+				}
+				catch (NumberFormatException e) {
+					
+				}
 			}
 		}
 		
-		return ArrayUtils.toPrimitive((Integer[]) result.toArray());
+		if(result.size() > 0 && result.size() % 2 == 0) {
+			return ArrayUtils.toPrimitive(result.toArray(new Integer[result.size()]));
+		}
+		
+		return null;
 	}
 
 }
