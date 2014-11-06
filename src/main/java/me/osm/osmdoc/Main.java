@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import me.osm.osmdoc.commands.ExpStrings;
+import me.osm.osmdoc.processing.Linker;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -44,11 +45,18 @@ public class Main {
 			@Override
 			public String help() {return "Generate csv file with features, "
 					+ "tags, etc. names and translations for them";}
+		},
+		COMPILE {
+			@Override
+			public String longName() {return name().toLowerCase();}
+			@Override
+			public String help() {return "Compile catalog folder into single xml file";}
 		}
 
 	}
 
-	private static Subparser generateTranslations;;
+	private static Subparser generateTranslations;
+	private static Subparser compile;;
 	
 	public static void main(String[] args) {
 		
@@ -62,6 +70,10 @@ public class Main {
 			if(namespace.get(COMMAND).equals(Command.EXP_STRINGS)) {
 				new ExpStrings(catalogPath).run();
 			}
+
+			if(namespace.get(COMMAND).equals(Command.COMPILE)) {
+				Linker.run(namespace.getString("catalog_path"), namespace.getString("out_path"));
+			}
 			
 		}
 		catch (ArgumentParserException e) {
@@ -73,13 +85,13 @@ public class Main {
 	}
 
 	private static ArgumentParser getArgumentsParser() {
-		ArgumentParser parser = ArgumentParsers.newArgumentParser("gazetter")
+		ArgumentParser parser = ArgumentParsers.newArgumentParser("osm-doc")
                 .defaultHelp(true)
-                .description("Create alphabetical index of osm file features");
+                .description("Various uyility operations for osm-doc treat.");
 
 		parser.version("0.1");
 		
-		parser.addArgument("--catalog").required(true)
+		parser.addArgument("--catalog").required(false)
 			.help("Path to doc file or folder with catalog features.")
 			.setDefault("catalog");
         
@@ -91,6 +103,17 @@ public class Main {
 			generateTranslations = subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
+        }
+        //GENERATE_TRANSLATIONS
+        {
+        	Command command = Command.COMPILE;
+        	compile = subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+        			.help(command.help());
+        	compile.addArgument("catalog_path")
+        		.help("Path to folder with catalog");
+        	compile.addArgument("out_path")
+        		.help("Path to file where to write the resaults. Use - for stdout.");
         }
         
         return parser;
