@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import me.osm.osmdoc.localization.L10n;
@@ -19,18 +20,26 @@ import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.LangString;
 import me.osm.osmdoc.model.MoreTags;
 import me.osm.osmdoc.model.Tag;
+import me.osm.osmdoc.model.Tag.TagValueType;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
 import me.osm.osmdoc.model.Trait;
+import me.osm.osmdoc.read.tagvalueparsers.OpeningHoursParser;
+import me.osm.osmdoc.read.tagvalueparsers.TagValueParser;
+import me.osm.osmdoc.read.tagvalueparsers.TagValueParsersFactory;
+import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static me.osm.osmdoc.localization.L10n.tr;
 
 public class OSMDocFacade {
 	
+	private static final Logger log = LoggerFactory.getLogger(OSMDocFacade.class);
 	
 	private TagsDecisionTreeImpl dTree;
 	private DOCReader docReader;
@@ -232,6 +241,67 @@ public class OSMDocFacade {
 		}
 		
 		return result;
+	}
+
+	public JSONObject parseMoreTags(Feature f, Map<String, String> tags, 
+			TagsStatisticCollector statistics) {
+		LinkedHashMap<String, Tag> moreTags = getMoreTags(f);
+		JSONObject result = new JSONObject();
+		
+		for(Entry<String, Tag> template : moreTags.entrySet()) {
+
+			String key = template.getKey();
+			Tag tag = template.getValue();
+			
+			String rawValue = tags.get(key);
+
+			//value founded
+			if(StringUtils.isNotBlank(rawValue)) {
+				TagValueParser parser = getTagValueParser(tag);
+				
+				try{
+					Object parsedValue = null;
+					
+					if(parser instanceof OpeningHoursParser || rawValue.indexOf(';') < 0) {
+						parsedValue = parser.parse(rawValue);
+					}
+					//Multiple values
+					else {
+						parsedValue = new JSONArray();
+						for(String v : StringUtils.split(rawValue, ';')) {
+							Object pv = parser.parse(v);
+							if(pv != null) {
+								((JSONArray)parsedValue).put(pv);
+							}
+							else {
+								log.warn("Failed to parse {} from {} with {}.", 
+										new Object[]{pv, rawValue, parser.getClass().getSimpleName()});
+							}
+						}
+						
+						if(((JSONArray)parsedValue).length() == 0) {
+							parsedValue = 0;
+						}
+					}
+					
+					if(parsedValue != null) {
+						result.put(key, parsedValue);
+					}
+					else {
+						log.warn("Failed to parse {} with {}.", rawValue , parser.getClass().getSimpleName());
+					}
+				}
+				catch (Throwable t) {
+					log.warn("Failed to parse {} with {}.", rawValue , parser.getClass().getSimpleName());
+				}
+			}
+		}
+		
+		return result;
+	}
+
+	private TagValueParser getTagValueParser(Tag tag) {
+		return TagValueParsersFactory.getParser(tag);
 	}
 
 	private void collectMoreTags(String traitName, HashSet<String> visitedTraits,
