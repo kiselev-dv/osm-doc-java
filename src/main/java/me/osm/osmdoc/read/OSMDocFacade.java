@@ -1,10 +1,11 @@
 package me.osm.osmdoc.read;
 
+import static me.osm.osmdoc.localization.L10n.tr;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,9 +19,7 @@ import me.osm.osmdoc.model.Fref;
 import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.LangString;
-import me.osm.osmdoc.model.MoreTags;
 import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tag.TagValueType;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
 import me.osm.osmdoc.model.Trait;
@@ -34,8 +33,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static me.osm.osmdoc.localization.L10n.tr;
 
 public class OSMDocFacade {
 	
