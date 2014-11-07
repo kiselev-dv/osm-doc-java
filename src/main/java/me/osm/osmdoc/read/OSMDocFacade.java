@@ -213,38 +213,46 @@ public class OSMDocFacade {
 		
 		List<String> result = new ArrayList<String>();
 		for(String lang : L10n.supported) {
+			//Translated title
 			result.add(getTranslatedTitle(f, Locale.forLanguageTag(lang)));
+
+			//Aliases for supported language
 			for(LangString alias : f.getAlias()) {
-				result.add(alias.getValue());
+				if(alias.getLang().equalsIgnoreCase(lang)) {
+					result.add(alias.getValue());
+				}
 			}
 		}
 		
 		return result;
 	}
 
-	public LinkedHashMap<String, Tag> getMoreTags(Feature f) {
+	public LinkedHashMap<String, Tag> getMoreTags(List<Feature> poiClassess) {
+		
 		LinkedHashMap<String, Tag> result = new LinkedHashMap<>();
 
-		//Get more tags from traits
-		for(String trait : f.getTrait()) {
-			trait = StringUtils.strip(trait);
-			collectMoreTags(trait, new HashSet<String>(), result);
-		}
-		
-		//Get more tags from feture
-		if(f.getMoreTags() != null) {
-			for(Tag tag : f.getMoreTags().getTag()) {
-				result.put(tag.getKey().getValue(), tag);
+		for(Feature pc : poiClassess) {
+			//Get more tags from traits
+			for(String trait : pc.getTrait()) {
+				trait = StringUtils.strip(trait);
+				collectMoreTags(trait, new HashSet<String>(), result);
+			}
+			
+			//Get more tags from feture
+			if(pc.getMoreTags() != null) {
+				for(Tag tag : pc.getMoreTags().getTag()) {
+					result.put(tag.getKey().getValue(), tag);
+				}
 			}
 		}
 		
 		return result;
 	}
 
-	public JSONObject parseMoreTags(Feature f, JSONObject properties, 
+	public JSONObject parseMoreTags(List<Feature> poiClassess, JSONObject properties, 
 			TagsStatisticCollector statistics) {
 		
-		LinkedHashMap<String, Tag> moreTags = getMoreTags(f);
+		LinkedHashMap<String, Tag> moreTags = getMoreTags(poiClassess);
 		JSONObject result = new JSONObject();
 		
 		for(Entry<String, Tag> template : moreTags.entrySet()) {
