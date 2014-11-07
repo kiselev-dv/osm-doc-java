@@ -270,25 +270,29 @@ public class OSMDocFacade {
 				try{
 					Object parsedValue = null;
 					
+					// Symbol ';' already used in working_hours to split
+					// different time periods
 					if(parser instanceof OpeningHoursParser || rawValue.indexOf(';') < 0) {
 						parsedValue = parser.parse(rawValue);
 					}
 					//Multiple values
 					else {
 						parsedValue = new JSONArray();
+						
+						//For now we use ; as values separator
 						for(String v : StringUtils.split(rawValue, ';')) {
 							Object pv = parser.parse(v);
 							if(pv != null) {
 								((JSONArray)parsedValue).put(pv);
+								statistics.success(pv, tag, rawValue, parser);
 							}
 							else {
-								log.warn("Failed to parse {} from {} with {}.", 
-										new Object[]{pv, rawValue, parser.getClass().getSimpleName()});
+								statistics.failed(tag, rawValue, parser);
 							}
 						}
 						
 						if(((JSONArray)parsedValue).length() == 0) {
-							parsedValue = 0;
+							parsedValue = null;
 						}
 					}
 					
@@ -296,11 +300,11 @@ public class OSMDocFacade {
 						result.put(key, parsedValue);
 					}
 					else {
-						log.warn("Failed to parse {} with {}.", rawValue , parser.getClass().getSimpleName());
+						statistics.failed(tag, rawValue, parser);
 					}
 				}
 				catch (Throwable t) {
-					log.warn("Failed to parse {} with {}.", rawValue , parser.getClass().getSimpleName());
+					statistics.failed(tag, rawValue, parser);
 				}
 			}
 		}

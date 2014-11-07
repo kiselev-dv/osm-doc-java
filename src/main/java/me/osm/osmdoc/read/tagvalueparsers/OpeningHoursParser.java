@@ -169,6 +169,10 @@ public class OpeningHoursParser implements TagValueParser {
 			}
 		}
 		
+		if(result.size() == 1 && 24 == result.iterator().next()) {
+			return new int[]{0, 24};
+		}
+		
 		if(result.size() > 0 && result.size() % 2 == 0) {
 			return ArrayUtils.toPrimitive(result.toArray(new Integer[result.size()]));
 		}
