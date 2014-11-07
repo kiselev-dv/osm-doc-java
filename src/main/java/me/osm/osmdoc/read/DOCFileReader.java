@@ -3,6 +3,8 @@ package me.osm.osmdoc.read;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +15,9 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import me.osm.osmdoc.model.DocPart;
 import me.osm.osmdoc.model.Feature;
@@ -45,7 +50,14 @@ public class DOCFileReader extends AbstractReader {
 			
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			
-			doc = (DocPart) unmarshaller.unmarshal(is);
+			byte[] encoded = IOUtils.toByteArray(is);
+			String source = new String(encoded, Charset.forName("UTF8"));
+			
+			source = StringUtils.replace(source, "d:tag-value-type=", "tag-value-type=");
+			source = StringUtils.replace(source, "d:match=", "match=");
+			source = StringUtils.remove(source, "d:xmlns=\"http://map.osm.me/osm-doc-part\"");
+			
+			doc = (DocPart) unmarshaller.unmarshal(new StringReader(source));
 			
 			for(Feature f : doc.getFeature()) {
 				featureByName.put(f.getName(), f);
