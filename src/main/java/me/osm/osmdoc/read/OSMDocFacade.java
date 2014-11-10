@@ -3,9 +3,12 @@ package me.osm.osmdoc.read;
 import static me.osm.osmdoc.localization.L10n.tr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -174,14 +177,16 @@ public class OSMDocFacade {
 		List<JSONObject> childFeatures = new ArrayList<JSONObject>();
 		for(Fref f : fref) {
 			Feature feature = getFeature(f.getRef());
-			JSONObject childFeature = new JSONObject();
-			childFeature.put("type", "feature");
-			childFeature.put("name", feature.getName());
-			childFeature.put("icon", feature.getIcon());
-			childFeature.put("title", tr(feature.getTitle(), lang));
-			childFeature.put("description", tr(feature.getDescription(), lang));
-			
-			childFeatures.add(childFeature);
+			if(feature != null) {
+				JSONObject childFeature = new JSONObject();
+				childFeature.put("type", "feature");
+				childFeature.put("name", feature.getName());
+				childFeature.put("icon", feature.getIcon());
+				childFeature.put("title", tr(feature.getTitle(), lang));
+				childFeature.put("description", tr(feature.getDescription(), lang));
+				
+				childFeatures.add(childFeature);
+			}
 		}
 		
 		gjs.put("features", new JSONArray(childFeatures));
@@ -225,9 +230,15 @@ public class OSMDocFacade {
 		}
 		
 		return result;
+		
 	}
 
 	public LinkedHashMap<String, Tag> getMoreTags(List<Feature> poiClassess) {
+		
+		return getMoreTags(poiClassess, new HashSet<String>());
+	}
+	
+	public LinkedHashMap<String, Tag> getMoreTags(List<Feature> poiClassess, Set<String> visitedTraits) {
 		
 		LinkedHashMap<String, Tag> result = new LinkedHashMap<>();
 
@@ -342,6 +353,64 @@ public class OSMDocFacade {
 				
 			}
 		}
+	}
+	
+	public JSONObject featureAsJSON(Feature f, Locale lang) {
+		
+		JSONObject result = new JSONObject();
+		
+		result.put("name", f.getName());
+		result.put("title", f.getTitle());
+		result.put("translated_title", getTranslatedTitle(f, lang));
+		
+		JSONArray keywords = new JSONArray();
+		for(LangString ls : f.getAlias()) {
+			String aliasLang = ls.getLang();
+			String alias = StringUtils.strip(ls.getValue()); 
+			
+			JSONObject aliasJS = new JSONObject();
+			aliasJS.put("alias", alias);
+			aliasJS.put("lang", aliasLang);
+			
+			keywords.put(aliasJS);
+		}
+		result.put("keywords", keywords);
+		
+		LinkedHashSet<String> traits = new LinkedHashSet<String>();
+		LinkedHashMap<String, Tag> moreTags = getMoreTags(Arrays.asList(f), traits);
+
+		result.put("traits", new JSONArray(traits));
+		
+		JSONObject moreTagsJS = new JSONObject();
+		for(Entry<String, Tag> tagE : moreTags.entrySet()) {
+			moreTagsJS.put(tagE.getKey(), translateTagValues(tagE.getValue(), lang));
+		}
+		
+		moreTagsJS.put("more_tags", moreTagsJS);
+			
+		return result;
+	}
+
+	private JSONObject translateTagValues(Tag tag, Locale lang) {
+		JSONObject tagJS = new JSONObject();
+		
+		tagJS.put("name", L10n.tr(tag.getTitle(), lang));
+		
+		JSONArray valuesJS = new JSONArray();
+		tagJS.put("valueType", tag.getTagValueType());
+		
+		for(Val val : tag.getVal()) {
+			JSONObject value = new JSONObject();
+			String valTrKey = StringUtils.strip(val.getTitle());
+			value.put("key", L10n.tr(valTrKey, lang));
+			value.put("group", val.isGroupByValue());
+			
+			valuesJS.put(value);
+		}
+		
+		tagJS.put("values", valuesJS);
+		
+		return tagJS;
 	}
 	
 }
