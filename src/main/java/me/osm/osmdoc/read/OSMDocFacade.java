@@ -413,4 +413,15 @@ public class OSMDocFacade {
 		return tagJS;
 	}
 	
+	public List<JSONObject> listTranslatedFeatures(Locale lang) {
+		
+		List<JSONObject> reult = new ArrayList<JSONObject>();
+		
+		for(Feature f : this.docReader.getFeatures()) {
+			reult.add(featureAsJSON(f, lang));
+		}
+		
+		return reult;
+	}
+	
 }
