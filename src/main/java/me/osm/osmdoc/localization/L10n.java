@@ -26,7 +26,7 @@ public class L10n {
 	
 	private static final Map<String, L10n> instances = new HashMap<String, L10n>(); 
 	
-	public static String tr(String key, Locale locale) {
+	public static String trOrNull(String key, Locale locale) {
 		
 		if(locale == null) {
 			locale = Locale.getDefault();
@@ -45,9 +45,20 @@ public class L10n {
 			if(instances.get(locale.getDisplayName()).rbundle.containsKey(key)) {
 				return instances.get(locale.getDisplayName()).rbundle.getString(key);
 			}
+			else {
+				return null;
+			}
 		}
 
 		return key;
+		
+	}
+	
+	public static String tr(String key, Locale locale) {
+		
+		String result = trOrNull(key, locale);
+		
+		return result == null ? key : result;
 		
 	}
 }
