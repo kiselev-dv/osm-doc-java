@@ -42,11 +42,12 @@ public class L10n {
 				}
 			}
 			
-			return instances.get(locale.getDisplayName()).rbundle.getString(key);
+			if(instances.get(locale.getDisplayName()).rbundle.containsKey(key)) {
+				return instances.get(locale.getDisplayName()).rbundle.getString(key);
+			}
 		}
-		else {
-			return key;
-		}
+
+		return key;
 		
 	}
 }

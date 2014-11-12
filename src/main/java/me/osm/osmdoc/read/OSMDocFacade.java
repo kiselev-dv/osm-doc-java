@@ -163,7 +163,6 @@ public class OSMDocFacade {
 		
 		for(Group g : groups) {
 			JSONObject childG = new JSONObject();
-			childG.put("type", "group");
 			childG.put("name", g.getName());
 			childG.put("icon", g.getIcon());
 			childG.put("title", tr(g.getTitle(), lang));
@@ -178,11 +177,9 @@ public class OSMDocFacade {
 		for(Fref f : fref) {
 			Feature feature = getFeature(f.getRef());
 			if(feature != null) {
-				JSONObject childFeature = new JSONObject();
-				childFeature.put("type", "feature");
-				childFeature.put("name", feature.getName());
+				JSONObject childFeature = featureAsJSON(feature, lang);
+
 				childFeature.put("icon", feature.getIcon());
-				childFeature.put("title", tr(feature.getTitle(), lang));
 				childFeature.put("description", tr(feature.getDescription(), lang));
 				
 				childFeatures.add(childFeature);
@@ -386,7 +383,7 @@ public class OSMDocFacade {
 			moreTagsJS.put(tagE.getKey(), translateTagValues(tagE.getValue(), lang));
 		}
 		
-		moreTagsJS.put("more_tags", moreTagsJS);
+		result.put("more_tags", moreTagsJS);
 			
 		return result;
 	}
@@ -396,16 +393,16 @@ public class OSMDocFacade {
 		
 		tagJS.put("name", L10n.tr(tag.getTitle(), lang));
 		
-		JSONArray valuesJS = new JSONArray();
+		JSONObject valuesJS = new JSONObject();
 		tagJS.put("valueType", tag.getTagValueType());
 		
 		for(Val val : tag.getVal()) {
 			JSONObject value = new JSONObject();
 			String valTrKey = StringUtils.strip(val.getTitle());
-			value.put("key", L10n.tr(valTrKey, lang));
+			value.put("name", L10n.tr(valTrKey, lang));
 			value.put("group", val.isGroupByValue());
 			
-			valuesJS.put(value);
+			valuesJS.put(valTrKey, value);
 		}
 		
 		tagJS.put("values", valuesJS);
