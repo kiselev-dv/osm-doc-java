@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.osm.osm-doc</groupId>
 	<artifactId>osm-doc-java</artifactId>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.7</version>
 
 	<dependencies>
 		<dependency>
