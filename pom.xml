@@ -3,7 +3,7 @@
 	<groupId>me.osm.osm-doc</groupId>
 	<artifactId>osm-doc-java</artifactId>
 	<version>0.8-SNAPSHOT</version>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
