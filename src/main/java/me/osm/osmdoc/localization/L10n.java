@@ -19,7 +19,7 @@ public class L10n {
 	}
 	
 	private L10n(Locale locale) {
-		rbundle = ResourceBundle.getBundle("me.osm.osmdoc.localization.strings", locale);
+		rbundle = ResourceBundle.getBundle("strings", locale);
 	}
 
 	private ResourceBundle rbundle;
