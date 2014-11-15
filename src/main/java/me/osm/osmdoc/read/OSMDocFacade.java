@@ -356,15 +356,15 @@ public class OSMDocFacade {
 		result.put("translated_title", getTranslatedTitle(f, lang));
 		
 		JSONArray keywords = new JSONArray();
-		for(LangString ls : f.getAlias()) {
-			String aliasLang = ls.getLang();
-			String alias = StringUtils.strip(ls.getValue()); 
+		for(LangString ls : f.getKeyword()) {
+			String keywordLang = ls.getLang();
+			String keyword = StringUtils.strip(ls.getValue()); 
 			
-			JSONObject aliasJS = new JSONObject();
-			aliasJS.put("alias", alias);
-			aliasJS.put("lang", aliasLang);
+			JSONObject keywordJS = new JSONObject();
+			keywordJS.put("alias", keyword);
+			keywordJS.put("lang", keywordLang);
 			
-			keywords.put(aliasJS);
+			keywords.put(keywordJS);
 		}
 		result.put("keywords", keywords);
 		
