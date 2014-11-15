@@ -416,9 +416,11 @@ public class OSMDocFacade {
 		return reult;
 	}
 
-	public void collectKeywords(Collection<Feature> poiClassess, JSONObject moreTags,
+	public JSONObject collectKeywords(Collection<Feature> poiClassess, JSONObject moreTags,
 			Collection<String> keywords) {
 		//TODO: make me
+		
+		return null;
 	}
 	
 }
