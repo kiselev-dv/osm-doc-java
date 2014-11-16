@@ -53,10 +53,6 @@ public class DOCFileReader extends AbstractReader {
 			byte[] encoded = IOUtils.toByteArray(is);
 			String source = new String(encoded, Charset.forName("UTF8"));
 			
-			source = StringUtils.replace(source, "d:tag-value-type=", "tag-value-type=");
-			source = StringUtils.replace(source, "d:match=", "match=");
-			source = StringUtils.remove(source, "d:xmlns=\"http://map.osm.me/osm-doc-part\"");
-			
 			doc = (DocPart) unmarshaller.unmarshal(new StringReader(source));
 			
 			for(Feature f : doc.getFeature()) {

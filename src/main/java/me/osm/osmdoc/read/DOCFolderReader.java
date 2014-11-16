@@ -63,9 +63,6 @@ public class DOCFolderReader extends AbstractReader {
 			byte[] encoded = Files.readAllBytes(root.toPath());
 			
 			String source = new String(encoded, Charset.forName("UTF8"));
-			source = StringUtils.replace(source, "d:tag-value-type=", "tag-value-type=");
-			source = StringUtils.replace(source, "d:match=", "match=");
-			source = StringUtils.remove(source, "d:xmlns=\"http://map.osm.me/osm-doc-part\"");
 			
 			DocPart doc = (DocPart) unmarshaller.unmarshal(new StringReader(source));
 			

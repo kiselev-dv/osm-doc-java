@@ -11,7 +11,7 @@ public class TagsStatisticCollector {
 
 	public void failed(Tag tag, String rawValue, TagValueParser parser) {
 		log.warn("Failed to parse tag key: '{}' value: '{}' with {}.", 
-				new Object[]{ rawValue , parser.getClass().getSimpleName()});
+				new Object[]{ tag.getKey().getValue(), rawValue , parser.getClass().getSimpleName()});
 	}
 
 	public void success(Object pv, Tag tag, String rawValue,
