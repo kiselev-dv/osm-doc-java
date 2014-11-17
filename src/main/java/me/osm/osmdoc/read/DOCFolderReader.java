@@ -80,7 +80,7 @@ public class DOCFolderReader extends AbstractReader {
 			
 		}
 		catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Failed to parse " + root.getName(), e);
 		}
 	}
 
