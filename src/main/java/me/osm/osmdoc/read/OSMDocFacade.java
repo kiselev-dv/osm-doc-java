@@ -253,7 +253,7 @@ public class OSMDocFacade {
 	}
 
 	public JSONObject parseMoreTags(List<Feature> poiClassess, JSONObject properties, 
-			TagsStatisticCollector statistics) {
+			TagsStatisticCollector statistics, Map<String, List<Val>> fillVals) {
 		
 		LinkedHashMap<String, Tag> moreTags = getMoreTags(poiClassess);
 		JSONObject result = new JSONObject();
@@ -277,6 +277,11 @@ public class OSMDocFacade {
 					// different time periods
 					if(parser instanceof OpeningHoursParser || rawValue.indexOf(';') < 0) {
 						parsedValue = parser.parse(rawValue);
+						if(parsedValue != null) {
+							statistics.success(parsedValue, tag, rawValue, parser, poiClassess);
+							
+							fillVals(fillVals, tag, parsedValue);
+						}
 					}
 					//Multiple values
 					else {
@@ -287,10 +292,13 @@ public class OSMDocFacade {
 							Object pv = parser.parse(v);
 							if(pv != null) {
 								((JSONArray)parsedValue).put(pv);
-								statistics.success(pv, tag, rawValue, parser);
+								
+								statistics.success(pv, tag, rawValue, parser, poiClassess);
+								
+								fillVals(fillVals, tag, pv);
 							}
 							else {
-								statistics.failed(tag, rawValue, parser);
+								statistics.failed(tag, rawValue, parser, poiClassess);
 							}
 						}
 						
@@ -303,16 +311,27 @@ public class OSMDocFacade {
 						result.put(key, parsedValue);
 					}
 					else {
-						statistics.failed(tag, rawValue, parser);
+						statistics.failed(tag, rawValue, parser, poiClassess);
 					}
 				}
 				catch (Throwable t) {
-					statistics.failed(tag, rawValue, parser);
+					statistics.failed(tag, rawValue, parser, poiClassess);
 				}
 			}
 		}
 		
 		return result;
+	}
+
+	private void fillVals(Map<String, List<Val>> fillVals, Tag tag,
+			Object parsedValue) {
+		if(parsedValue instanceof Val && fillVals != null) {
+			String keyKey = tag.getKey().getValue();
+			if(fillVals.get(keyKey) == null) {
+				fillVals.put(keyKey, new ArrayList<Tag.Val>());
+			}
+			fillVals.get(keyKey).add((Val) parsedValue);
+		}
 	}
 
 	private TagValueParser getTagValueParser(Tag tag) {
@@ -416,11 +435,54 @@ public class OSMDocFacade {
 		return reult;
 	}
 
-	public JSONObject collectKeywords(Collection<Feature> poiClassess, JSONObject moreTags,
-			Collection<String> keywords) {
-		//TODO: make me
+	public void collectKeywords(Collection<Feature> poiClassess, 
+			Map<String, List<Val>> moreTagsVals,
+			Collection<String> keywords, Collection<String> langs) {
 		
-		return null;
+		for(Feature f : poiClassess) {
+			for(LangString kw : f.getKeyword()) {
+				addKeyword(keywords, kw, langs);
+			}
+		}
+		
+		for(List<Val> vl : moreTagsVals.values()) {
+			for(Val v : vl) {
+				for(LangString kw : v.getKeyword()) {
+					addKeyword(keywords, kw, langs);
+				}
+			}
+		}
+	}
+
+	private void addKeyword(Collection<String> keywords, LangString kw, 
+			Collection<String> langs) {
+		
+		String val = kw.getValue();
+		
+		if(val.startsWith(L10n.L10N_PREFIX)) {
+		
+			if(langs != null && !langs.isEmpty()) {
+				for(String l : langs) {
+					if(L10n.supported.contains(l)) {
+						keywords.add(L10n.tr(val, Locale.forLanguageTag(l)));
+					}
+				}
+			}
+			else {
+				for(String l : L10n.supported) {
+					keywords.add(L10n.tr(val, Locale.forLanguageTag(l)));
+				}
+			}
+		}
+		else if(langs == null || langs.isEmpty()) {
+			keywords.add(val);
+		}
+		else {
+			String lang = kw.getLang();
+			if(langs.contains(lang)) {
+				keywords.add(val);
+			}
+		}
 	}
 	
 }

@@ -18,9 +18,9 @@ public class EnumParser implements TagValueParser {
 	
 	private static final Logger log = LoggerFactory.getLogger(EnumParser.class);
 
-	private Map<String, String> exacts = new HashMap<String, String>();
-	private Map<String, String> contains = new HashMap<String, String>();
-	private Map<Pattern, String> regexp = new HashMap<Pattern, String>();
+	private Map<String, Val> exacts = new HashMap<>();
+	private Map<String, Val> contains = new HashMap<>();
+	private Map<Pattern, Val> regexp = new HashMap<>();
 	
 	private String anyMatch = null;
 	
@@ -32,17 +32,17 @@ public class EnumParser implements TagValueParser {
 			
 			//TODO: multiple values
 			if(MatchType.EXACT == match) {
-				exacts.put(val.getValue(), val.getTitle());
+				exacts.put(val.getValue(), val);
 			}
 			else if(MatchType.CONTAINS == match || MatchType.WITH_NAMESPACE == match) {
-				contains.put(val.getValue(), val.getTitle());
+				contains.put(val.getValue(), val);
 			}
 			else if(MatchType.ANY == match) {
 				anyMatch = title;
 			}
 			else if(MatchType.REGEXP == match) {
 				try{
-					regexp.put(Pattern.compile(val.getValue()), val.getTitle());
+					regexp.put(Pattern.compile(val.getValue()), val);
 				}
 				catch (PatternSyntaxException e) {
 					log.warn("Failed to compile regexp for tag {}. Regexp: {}.", tag.getKey().getValue(), val.getValue());
@@ -55,18 +55,18 @@ public class EnumParser implements TagValueParser {
 	public Object parse(String rawValue) {
 		
 		String lowerCase = rawValue.toLowerCase();
-		String exact = exacts.get(lowerCase);
+		Val exact = exacts.get(lowerCase);
 		if(exact != null) {
 			return exact;
 		}
 		
-		for(Entry<String, String> ce : contains.entrySet()) {
+		for(Entry<String, Val> ce : contains.entrySet()) {
 			if(lowerCase.contains(ce.getKey())) {
 				return ce.getValue();
 			}
 		}
 
-		for(Entry<Pattern, String> re : regexp.entrySet()) {
+		for(Entry<Pattern, Val> re : regexp.entrySet()) {
 			if(re.getKey().matcher(lowerCase).find()) {
 				return re.getValue();
 			}
