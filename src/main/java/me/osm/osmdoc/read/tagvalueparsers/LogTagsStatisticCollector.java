@@ -2,11 +2,11 @@ package me.osm.osmdoc.read.tagvalueparsers;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LogTagsStatisticCollector implements TagsStatisticCollector {
 	

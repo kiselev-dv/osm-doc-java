@@ -1,18 +1,12 @@
 package me.osm.osmdoc.commands;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
-
-import org.apache.commons.lang3.StringUtils;
 
 import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Choise;
@@ -26,6 +20,8 @@ import me.osm.osmdoc.model.Trait;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.DOCReader;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class SynchronizeI18N {
 	

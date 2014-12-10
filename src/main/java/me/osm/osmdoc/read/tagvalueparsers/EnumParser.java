@@ -7,12 +7,12 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tag.Val.MatchType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnumParser implements TagValueParser {
 	

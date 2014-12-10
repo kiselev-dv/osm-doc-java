@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 import javax.xml.bind.JAXBContext;
@@ -21,7 +20,6 @@ import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.KeyType;
-import me.osm.osmdoc.model.MoreTags;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;

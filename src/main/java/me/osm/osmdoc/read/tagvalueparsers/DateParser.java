@@ -1,8 +1,6 @@
 package me.osm.osmdoc.read.tagvalueparsers;
 
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.Date;
 
 import me.osm.osmdoc.util.Strtotime;

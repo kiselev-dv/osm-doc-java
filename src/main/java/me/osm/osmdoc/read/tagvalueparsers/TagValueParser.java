@@ -1,7 +1,7 @@
 package me.osm.osmdoc.read.tagvalueparsers;
 
-import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 public interface TagValueParser {
 

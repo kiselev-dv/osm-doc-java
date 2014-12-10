@@ -16,13 +16,12 @@ import java.util.Set;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import me.osm.osmdoc.model.DocPart;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.Trait;
+
+import org.apache.commons.io.IOUtils;
 
 public class DOCFileReader extends AbstractReader {
 	
