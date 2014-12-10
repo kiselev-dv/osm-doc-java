@@ -5,6 +5,7 @@ import static me.osm.osmdoc.localization.L10n.tr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -225,12 +226,12 @@ public class OSMDocFacade {
 		
 	}
 
-	public LinkedHashMap<String, Tag> getMoreTags(List<Feature> poiClassess) {
+	public LinkedHashMap<String, Tag> getMoreTags(Collection<Feature> poiClassess) {
 		
 		return getMoreTags(poiClassess, new HashSet<String>());
 	}
 	
-	public LinkedHashMap<String, Tag> getMoreTags(List<Feature> poiClassess, Set<String> visitedTraits) {
+	public LinkedHashMap<String, Tag> getMoreTags(Collection<Feature> poiClassess, Set<String> visitedTraits) {
 		
 		LinkedHashMap<String, Tag> result = new LinkedHashMap<>();
 
@@ -325,11 +326,15 @@ public class OSMDocFacade {
 
 	private void fillVals(Map<String, List<Val>> fillVals, Tag tag,
 			Object parsedValue) {
+		
 		if(parsedValue instanceof Val && fillVals != null) {
+			
 			String keyKey = tag.getKey().getValue();
+			
 			if(fillVals.get(keyKey) == null) {
 				fillVals.put(keyKey, new ArrayList<Tag.Val>());
 			}
+			
 			fillVals.get(keyKey).add((Val) parsedValue);
 		}
 	}
@@ -445,10 +450,12 @@ public class OSMDocFacade {
 			}
 		}
 		
-		for(List<Val> vl : moreTagsVals.values()) {
-			for(Val v : vl) {
-				for(LangString kw : v.getKeyword()) {
-					addKeyword(keywords, kw, langs);
+		if(moreTagsVals != null) {
+			for(List<Val> vl : moreTagsVals.values()) {
+				for(Val v : vl) {
+					for(LangString kw : v.getKeyword()) {
+						addKeyword(keywords, kw, langs);
+					}
 				}
 			}
 		}
@@ -483,6 +490,18 @@ public class OSMDocFacade {
 				keywords.add(val);
 			}
 		}
+	}
+	
+	public Map<String, String> listMoreTagsTypes() {
+		Map<String, String> result = new HashMap<String, String>();
+
+		LinkedHashMap<String, Tag> moreTags = getMoreTags(featureByName.values());
+		
+		for(Entry<String, Tag> e : moreTags.entrySet()) {
+			result.put(e.getKey(), e.getValue().getTagValueType().name());
+		}
+		
+		return result;
 	}
 	
 }
