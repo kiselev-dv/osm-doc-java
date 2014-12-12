@@ -14,7 +14,7 @@ public class DateParser implements TagValueParser {
 		
 		private static final long serialVersionUID = -3625294105328787993L;
 		
-		private static final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+		private static final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		
 		public FormattedDate(Date date) {
 			super(date.getTime());
