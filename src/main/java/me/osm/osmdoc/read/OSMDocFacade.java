@@ -276,12 +276,23 @@ public class OSMDocFacade {
 					// Symbol ';' already used in working_hours to split
 					// different time periods
 					if(parser instanceof OpeningHoursParser || rawValue.indexOf(';') < 0) {
+						
 						parsedValue = parser.parse(rawValue);
+						
+						
 						if(parsedValue != null) {
-							statistics.success(parsedValue, tag, rawValue, parser, poiClassess);
+							Val val = null;
+							
+							if(parsedValue instanceof Val) {
+								val = (Val) parsedValue;
+								parsedValue = ((Val) parsedValue).getValue();
+							}
+
+							statistics.success(parsedValue, tag, val, rawValue, parser, poiClassess);
 							
 							fillVals(fillVals, tag, parsedValue);
 						}
+						
 					}
 					//Multiple values
 					else {
@@ -291,9 +302,17 @@ public class OSMDocFacade {
 						for(String v : StringUtils.split(rawValue, ';')) {
 							Object pv = parser.parse(v);
 							if(pv != null) {
+								
+								Val val = null;
+								
+								if(pv instanceof Val) {
+									val = (Val) pv;
+									pv = ((Val) pv).getValue();
+								}
+								
 								((JSONArray)parsedValue).put(pv);
 								
-								statistics.success(pv, tag, rawValue, parser, poiClassess);
+								statistics.success(pv, tag, val, rawValue, parser, poiClassess);
 								
 								fillVals(fillVals, tag, pv);
 							}

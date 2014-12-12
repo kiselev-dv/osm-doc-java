@@ -4,6 +4,7 @@ import java.util.List;
 
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag;
+import me.osm.osmdoc.model.Tag.Val;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ public class LogTagsStatisticCollector implements TagsStatisticCollector {
 	}
 
 	@Override
-	public void success(Object pv, Tag tag, String rawValue,
+	public void success(Object pv, Tag tag, Val val, String rawValue,
 			TagValueParser parser, List<Feature> poiClassess) {
 		
 	}
