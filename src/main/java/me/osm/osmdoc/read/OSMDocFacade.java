@@ -395,7 +395,19 @@ public class OSMDocFacade {
 		
 		result.put("name", f.getName());
 		result.put("title", f.getTitle());
-		result.put("translated_title", getTranslatedTitle(f, lang));
+		
+		if(lang == null) {
+			JSONArray titles = new JSONArray();
+			
+			for(String l : L10n.supported) {
+				titles.put(getTranslatedTitle(f, Locale.forLanguageTag(l)));
+			}
+			
+			result.put("translated_title", titles);
+		}
+		else {
+			result.put("translated_title", getTranslatedTitle(f, lang));
+		}
 		
 		JSONArray keywords = new JSONArray();
 		for(LangString ls : f.getKeyword()) {
@@ -428,7 +440,12 @@ public class OSMDocFacade {
 	private JSONObject translateTagValues(Tag tag, Locale lang) {
 		JSONObject tagJS = new JSONObject();
 		
-		tagJS.put("name", L10n.tr(tag.getTitle(), lang));
+		if(lang == null) {
+			tagJS.put("name", tag.getTitle());
+		}
+		else {
+			tagJS.put("name", L10n.tr(tag.getTitle(), lang));
+		}
 		
 		JSONObject valuesJS = new JSONObject();
 		tagJS.put("valueType", tag.getTagValueType());
@@ -436,7 +453,12 @@ public class OSMDocFacade {
 		for(Val val : tag.getVal()) {
 			JSONObject value = new JSONObject();
 			String valTrKey = StringUtils.strip(val.getTitle());
-			value.put("name", L10n.tr(valTrKey, lang));
+			if(lang == null) {
+				value.put("name", valTrKey);
+			}
+			else {
+				value.put("name", L10n.tr(valTrKey, lang));
+			}
 			value.put("group", val.isGroupByValue());
 			
 			valuesJS.put(valTrKey, value);
