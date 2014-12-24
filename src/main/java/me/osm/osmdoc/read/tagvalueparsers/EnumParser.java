@@ -32,10 +32,10 @@ public class EnumParser implements TagValueParser {
 			
 			//TODO: multiple values
 			if(MatchType.EXACT == match) {
-				exacts.put(val.getValue(), val);
+				exacts.put(val.getValue().toLowerCase(), val);
 			}
 			else if(MatchType.CONTAINS == match || MatchType.WITH_NAMESPACE == match) {
-				contains.put(val.getValue(), val);
+				contains.put(val.getValue().toLowerCase(), val);
 			}
 			else if(MatchType.ANY == match) {
 				anyMatch = title;

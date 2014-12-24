@@ -34,6 +34,7 @@ public class DateParser implements TagValueParser {
 		Date date = Strtotime.strtotime(rawValue);
 		if(date == null) {
 			log.warn("Failed to parse date: {}", rawValue);
+			return null;
 		}
 		
 		return new FormattedDate(date);
