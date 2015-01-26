@@ -467,7 +467,7 @@
 		</tags>
 		<trait>poi</trait>
 		<more-tags>
-			<tag d:tag-value-type="number">
+			<tag d:tag-value-type="anyString">
 				<title>l10n.feature.communication_tower.more_tags.ref.title</title>
 				<key>ref</key>
 			</tag>
@@ -551,7 +551,7 @@
 		</tags>
 		<trait>poi</trait>
 		<more-tags>
-			<tag d:tag-value-type="number">
+			<tag d:tag-value-type="anyString">
 				<title>l10n.feature.post_box.more_tags.ref.title</title>
 				<key>ref</key>
 			</tag>
@@ -589,7 +589,7 @@
 		<trait>poi</trait>
 		<trait>internet-access</trait>
 		<more-tags>
-			<tag d:tag-value-type="number">
+			<tag d:tag-value-type="anyString">
 				<title>l10n.feature.post_office.more_tags.ref.title</title>
 				<key>ref</key>
 			</tag>
