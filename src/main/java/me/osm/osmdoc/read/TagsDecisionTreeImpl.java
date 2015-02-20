@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
+
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.model.Tag.Val;
@@ -15,6 +17,7 @@ import me.osm.osmdoc.model.Tags;
 
 public class TagsDecisionTreeImpl implements TagsDecisionTree {
 
+	private static final String TAG_VALUES_SEPARATOR_CHARS = ";,";
 	private Map<String, Map<String, List<Feature>>> dictionary;
 	private Map<Tag, Set<String>> tagValsCache = new HashMap<Tag, Set<String>>();
 	
@@ -31,12 +34,14 @@ public class TagsDecisionTreeImpl implements TagsDecisionTree {
 			Map<String, List<Feature>> values = dictionary.get(tag.getKey());
 			
 			if(values != null) {
-				List<Feature> features = values.get(tag.getValue());
-				if(features != null) {
-					
-					for(Feature fDescription : features) {
-						if(match(tags, fDescription)) {
-							result.add(fDescription.getName());
+				for(String value : StringUtils.split(tag.getValue(), TAG_VALUES_SEPARATOR_CHARS)) {
+					value = StringUtils.strip(value);
+					List<Feature> features = values.get(value);
+					if(features != null) {
+						for(Feature fDescription : features) {
+							if(match(tags, fDescription)) {
+								result.add(fDescription.getName());
+							}
 						}
 					}
 				}
@@ -90,7 +95,13 @@ public class TagsDecisionTreeImpl implements TagsDecisionTree {
 		}
 		
 		Set<String> vals = getDescriptionTagValues(fdTag);
-		return vals.contains(objTagsValue);
+		for(String objTV : StringUtils.split(tags.get(tagKey), TAG_VALUES_SEPARATOR_CHARS)) {
+			if(vals.contains(StringUtils.strip(objTV))) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	//TODO Value matching
