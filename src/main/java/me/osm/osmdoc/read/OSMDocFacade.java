@@ -2,9 +2,11 @@ package me.osm.osmdoc.read;
 
 import static me.osm.osmdoc.localization.L10n.tr;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -58,6 +60,12 @@ public class OSMDocFacade {
 	 * 
 	 */
 	private Map<String, Map<String, List<Feature>>> key2values = new HashMap<String, Map<String,List<Feature>>>();
+	
+	public OSMDocFacade(String docPath) {
+		this((docPath.endsWith(".xml") || docPath.equals("jar")) 
+					? new DOCFileReader(docPath) 
+					: new DOCFolderReader(docPath), Collections.EMPTY_LIST);
+	}
 	
 	public OSMDocFacade(DOCReader reader, List<String> exclude) {
 		
@@ -542,6 +550,10 @@ public class OSMDocFacade {
 		}
 		
 		return result;
+	}
+	
+	public DOCReader getReader() {
+		return docReader;
 	}
 	
 }

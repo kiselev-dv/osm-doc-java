@@ -34,6 +34,10 @@ public class L10n {
 		
 		if(key != null && key.startsWith(L10N_PREFIX)) {
 			
+			if(!supported.contains(locale.toLanguageTag())) {
+				return null;
+			}
+			
 			if(instances.get(locale.getDisplayName()) == null) {
 				synchronized (instances) {
 					if(instances.get(locale.getDisplayName()) == null) {

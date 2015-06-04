@@ -155,8 +155,10 @@ public class ExpStrings {
 	}
 
 	private void processMoreTags(Feature f, String name) {
-		for(Tag tag : f.getMoreTags().getTag()) {
-			processTag(name, tag, "more_tags");
+		if(f != null && f.getMoreTags() != null) {
+			for(Tag tag : f.getMoreTags().getTag()) {
+				processTag(name, tag, "more_tags");
+			}
 		}
 	}
 
