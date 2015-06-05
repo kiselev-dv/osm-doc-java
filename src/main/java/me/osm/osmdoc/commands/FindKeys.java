@@ -192,7 +192,6 @@ public class FindKeys {
 	}
 
 	private String formatName(String name) {
-		//name = StringUtils.contains(name, ":") ? StringUtils.substringAfterLast(name, ":") : name;
 		return StringUtils.replaceChars(StringUtils.capitalize(name), "_:", "  ");
 	}
 
