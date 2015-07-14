@@ -11,15 +11,22 @@ import java.util.Set;
 public class L10n {
 	
 	public static final String L10N_PREFIX = "l10n.";
-	public static Set<String> supported = new HashSet<String>(Arrays.asList(
-			"ru"));
+	public static final Set<String> supported = new HashSet<String>(
+			Arrays.asList("ru", "en"));
+	
+	private static String catalogPath = null;
 	
 	private L10n() {
 		
 	}
 	
 	private L10n(Locale locale) {
-		rbundle = ResourceBundle.getBundle("strings", locale);
+		if(catalogPath == null) {
+			rbundle = ResourceBundle.getBundle("strings", locale);
+		}
+		else {
+			
+		}
 	}
 
 	private ResourceBundle rbundle;
@@ -64,5 +71,9 @@ public class L10n {
 		
 		return result == null ? key : result;
 		
+	}
+	
+	public static void setCatalogPath(String path) {
+		catalogPath = path;
 	}
 }
