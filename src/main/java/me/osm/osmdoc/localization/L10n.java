@@ -1,5 +1,8 @@
 package me.osm.osmdoc.localization;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,16 +25,18 @@ public class L10n {
 	
 	private L10n(Locale locale) {
 		if(catalogPath == null) {
-			rbundle = ResourceBundle.getBundle("strings", locale);
+			strings = ResourceBundle.getBundle("strings", locale);
 		}
 		else {
-			
+			// Access to rbLoader isn't safe here
+			strings = ResourceBundle.getBundle("strings", locale, rbLoader);
 		}
 	}
 
-	private ResourceBundle rbundle;
+	private ResourceBundle strings;
 	
-	private static final Map<String, L10n> instances = new HashMap<String, L10n>(); 
+	private static final Map<String, L10n> instances = new HashMap<String, L10n>();
+	private static ClassLoader rbLoader; 
 	
 	public static String trOrNull(String key, Locale locale) {
 		
@@ -53,8 +58,8 @@ public class L10n {
 				}
 			}
 			
-			if(instances.get(locale.getDisplayName()).rbundle.containsKey(key)) {
-				return instances.get(locale.getDisplayName()).rbundle.getString(key);
+			if(instances.get(locale.getDisplayName()).strings.containsKey(key)) {
+				return instances.get(locale.getDisplayName()).strings.getString(key);
 			}
 			else {
 				return null;
@@ -73,7 +78,17 @@ public class L10n {
 		
 	}
 	
-	public static void setCatalogPath(String path) {
+	public static synchronized void setCatalogPath(String path) {
 		catalogPath = path;
+		
+		try {
+			File file = new File(catalogPath);
+			URL[] urls = {file.toURI().toURL()};
+			rbLoader = new URLClassLoader(urls, L10n.class.getClassLoader());
+		}
+		catch (Throwable t) {
+			t.printStackTrace();
+			catalogPath = null;
+		}
 	}
 }
