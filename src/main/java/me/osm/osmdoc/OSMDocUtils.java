@@ -1,8 +1,6 @@
 package me.osm.osmdoc;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import me.osm.osmdoc.commands.ExpStrings;
 import me.osm.osmdoc.commands.FindKeys;
@@ -150,14 +148,4 @@ public class OSMDocUtils {
         return parser;
 	}
 	
-	/**
-	 * Returns string list or empty list for null 
-	 * */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static List<String> list( List list) {
-		if(list == null) {
-			return Collections.emptyList();
-		}
-		return list;
-	}
 }

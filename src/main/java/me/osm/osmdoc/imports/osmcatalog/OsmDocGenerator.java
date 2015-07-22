@@ -334,6 +334,7 @@ public class OsmDocGenerator {
 		return feature;
 	}
 
+	@SuppressWarnings("unchecked")
 	private MoreTags mapMoreTags(List<TagDescriptor> moreTags, String lang) {
 		MoreTags result = objF.createMoreTags();
 		for(TagDescriptor t : moreTags) {

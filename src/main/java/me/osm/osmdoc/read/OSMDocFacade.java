@@ -2,7 +2,6 @@ package me.osm.osmdoc.read;
 
 import static me.osm.osmdoc.localization.L10n.tr;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,12 +35,8 @@ import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OSMDocFacade {
-	
-	private static final Logger log = LoggerFactory.getLogger(OSMDocFacade.class);
 	
 	private TagsDecisionTreeImpl dTree;
 	private DOCReader docReader;
@@ -61,6 +56,7 @@ public class OSMDocFacade {
 	 */
 	private Map<String, Map<String, List<Feature>>> key2values = new HashMap<String, Map<String,List<Feature>>>();
 	
+	@SuppressWarnings("unchecked")
 	public OSMDocFacade(String docPath) {
 		this((docPath.endsWith(".xml") || docPath.equals("jar")) 
 					? new DOCFileReader(docPath) 
