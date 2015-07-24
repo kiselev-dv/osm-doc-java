@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
+
 public class L10n {
 	
 	public static final String L10N_PREFIX = "l10n.";
@@ -102,7 +104,9 @@ public class L10n {
 				return;
 			}
 			
-			URL[] urls = {file.toURI().toURL()};
+			LoggerFactory.getLogger(L10n.class).info("Initialize L10n from {}", catalogFile);
+			
+			URL[] urls = {catalogFile.toURI().toURL()};
 			rbLoader = new URLClassLoader(urls, L10n.class.getClassLoader());
 		}
 		catch (Throwable t) {
