@@ -82,7 +82,7 @@ public class L10n {
 		catalogPath = path;
 		
 		try {
-			File file = new File(catalogPath);
+			File file = new File(catalogPath).getParentFile();
 			URL[] urls = {file.toURI().toURL()};
 			rbLoader = new URLClassLoader(urls, L10n.class.getClassLoader());
 		}
