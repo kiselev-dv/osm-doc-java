@@ -82,7 +82,26 @@ public class L10n {
 		catalogPath = path;
 		
 		try {
-			File file = new File(catalogPath).getParentFile();
+			
+			File catalogFile = null;
+			
+			File file = new File(catalogPath);
+			
+			if(containProperties(file)) {
+				catalogFile = file;
+			}
+			else {
+				catalogFile = getL10nFolder(file); 
+				if(catalogFile == null) {
+					catalogFile = getL10nFolder(file.getParentFile());
+				}
+			}
+			
+			if(catalogFile == null) {
+				catalogPath = null;
+				return;
+			}
+			
 			URL[] urls = {file.toURI().toURL()};
 			rbLoader = new URLClassLoader(urls, L10n.class.getClassLoader());
 		}
@@ -90,5 +109,23 @@ public class L10n {
 			t.printStackTrace();
 			catalogPath = null;
 		}
+	}
+
+	private static File getL10nFolder(File f) {
+		for(File file : f.listFiles()) {
+			if("l10n".equals(file.getName())) {
+				return file;
+			}
+		}
+		return null;
+	}
+
+	private static boolean containProperties(File file) {
+		for(String n : file.list()) {
+			if(n.endsWith(".properties")) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
