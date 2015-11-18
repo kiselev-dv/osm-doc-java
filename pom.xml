@@ -138,4 +138,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<distributionManagement>
+        <repository>
+            <id>myMavenRepo.write</id>
+            <url>${myMavenRepo.write.url}</url>
+        </repository>
+    </distributionManagement>
 </project>
