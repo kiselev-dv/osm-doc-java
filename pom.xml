@@ -145,4 +145,5 @@
             <url>${myMavenRepo.write.url}</url>
         </repository>
     </distributionManagement>
+    
 </project>
