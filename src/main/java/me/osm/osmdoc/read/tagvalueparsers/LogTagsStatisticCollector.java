@@ -15,7 +15,7 @@ public class LogTagsStatisticCollector implements TagsStatisticCollector {
 
 	@Override
 	public void failed(Tag tag, String rawValue, TagValueParser parser, List<Feature> poiClassess) {
-		log.warn("Failed to parse tag key: '{}' value: '{}' with {}.", 
+		log.debug("Failed to parse tag key: '{}' value: '{}' with {}.", 
 				new Object[]{ tag.getKey().getValue(), rawValue , parser.getClass().getSimpleName()});
 	}
 
