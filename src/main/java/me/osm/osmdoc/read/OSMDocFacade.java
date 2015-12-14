@@ -402,12 +402,16 @@ public class OSMDocFacade {
 		
 		if(lang == null) {
 			JSONArray titles = new JSONArray();
+			JSONObject lang2title = new JSONObject();
 			
 			for(String l : L10n.supported) {
-				titles.put(getTranslatedTitle(f, Locale.forLanguageTag(l)));
+				String translatedTitle = getTranslatedTitle(f, Locale.forLanguageTag(l));
+				titles.put(translatedTitle);
+				lang2title.put(l, translatedTitle);
 			}
 			
 			result.put("translated_title", titles);
+			result.put("title_by_lang", lang2title);
 		}
 		else {
 			result.put("translated_title", getTranslatedTitle(f, lang));
