@@ -107,7 +107,7 @@
 						<configuration>
 							<mainClass>me.osm.osmdoc.processing.GenerateL10NSources</mainClass>
 							<arguments>
-								<argument>${project.build.resources[0].directory}/strings_en.properties</argument>
+								<argument>${project.build.resources[0].directory}/l10n/strings_en.properties</argument>
 								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_en.properties</argument>
 								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_tags_en.properties</argument>
 								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/hierarchy_en.properties</argument>
@@ -124,7 +124,7 @@
 						<configuration>
 							<mainClass>me.osm.osmdoc.processing.GenerateL10NSources</mainClass>
 							<arguments>
-								<argument>${project.build.resources[0].directory}/strings_ru.properties</argument>
+								<argument>${project.build.resources[0].directory}/l10n/strings_ru.properties</argument>
 								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_ru.properties</argument>
 								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_tags_ru.properties</argument>
 								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/hierarchy_ru.properties</argument>
