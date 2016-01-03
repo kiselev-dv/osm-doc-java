@@ -24,6 +24,7 @@ import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.LangString;
 import me.osm.osmdoc.model.Tag;
+import me.osm.osmdoc.model.Tag.TagValueType;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
 import me.osm.osmdoc.model.Trait;
@@ -458,18 +459,20 @@ public class OSMDocFacade {
 		JSONObject valuesJS = new JSONObject();
 		tagJS.put("valueType", tag.getTagValueType());
 		
-		for(Val val : tag.getVal()) {
-			JSONObject value = new JSONObject();
-			String valTrKey = StringUtils.strip(val.getTitle());
-			if(lang == null) {
-				value.put("name", valTrKey);
+		if(tag.getTagValueType() != TagValueType.BOOLEAN) {
+			for(Val val : tag.getVal()) {
+				JSONObject value = new JSONObject();
+				String valTrKey = StringUtils.strip(val.getTitle());
+				if(lang == null) {
+					value.put("name", valTrKey);
+				}
+				else {
+					value.put("name", L10n.tr(valTrKey, lang));
+				}
+				value.put("group", val.isGroupByValue());
+				
+				valuesJS.put(val.getValue(), value);
 			}
-			else {
-				value.put("name", L10n.tr(valTrKey, lang));
-			}
-			value.put("group", val.isGroupByValue());
-			
-			valuesJS.put(valTrKey, value);
 		}
 		
 		tagJS.put("values", valuesJS);

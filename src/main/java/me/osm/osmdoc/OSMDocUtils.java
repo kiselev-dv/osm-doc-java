@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import me.osm.osmdoc.commands.ExpStrings;
 import me.osm.osmdoc.commands.FindKeys;
+import me.osm.osmdoc.processing.CheckL10n;
 import me.osm.osmdoc.processing.Linker;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -59,6 +60,12 @@ public class OSMDocUtils {
 			public String longName() {return name().toLowerCase();}
 			@Override
 			public String help() {return "Compile catalog folder into single xml file";}
+		},
+		CHECK_L10N {
+			@Override
+			public String longName() {return name().toLowerCase();}
+			@Override
+			public String help() {return "Search for missed l10n strings";}
 		}
 
 	}
@@ -91,6 +98,11 @@ public class OSMDocUtils {
 						namespace.getString("out"),
 						Arrays.asList("ru", "en")
 					).run();
+			}
+
+			if(namespace.get(COMMAND).equals(Command.CHECK_L10N)) {
+				new CheckL10n(namespace.getString("catalog"), 
+						namespace.getString("properties")).run();
 			}
 			
 		}
@@ -142,6 +154,21 @@ public class OSMDocUtils {
         	
         	findKeys.addArgument("out")
         		.help("Path to file where to write the resaults.");
+        	
+        }
+
+        {
+        	Command command = Command.CHECK_L10N;
+        	
+        	Subparser checkL10n = subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+        			.help(command.help());
+        	
+        	checkL10n.addArgument("catalog")
+        		.help("Path to osm-doc catalog.");
+
+        	checkL10n.addArgument("properties")
+        		.help("Path i18n localization file to check.");
         	
         }
         

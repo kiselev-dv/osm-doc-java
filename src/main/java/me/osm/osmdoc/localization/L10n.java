@@ -11,10 +11,12 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class L10n {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(L10n.class);
 	public static final String L10N_PREFIX = "l10n.";
 	public static final Set<String> supported = new HashSet<String>(
 			Arrays.asList("ru", "en"));
@@ -27,7 +29,9 @@ public class L10n {
 	
 	private L10n(Locale locale) {
 		if(catalogPath == null) {
-			strings = ResourceBundle.getBundle("strings", locale);
+			URL[] urls = {L10n.class.getClassLoader().getResource("l10n")};
+			strings = ResourceBundle.getBundle("strings", locale, 
+					new URLClassLoader(urls, L10n.class.getClassLoader()));
 		}
 		else {
 			// Access to rbLoader isn't safe here
@@ -76,7 +80,12 @@ public class L10n {
 		
 		String result = trOrNull(key, locale);
 		
-		return result == null ? key : result;
+		if(result == null) {
+			LOGGER.warn("Localization key: {} not found for locale {}.", key, locale.toLanguageTag());
+			return key;
+		}
+		
+		return result;
 		
 	}
 	
@@ -104,9 +113,9 @@ public class L10n {
 				return;
 			}
 			
-			LoggerFactory.getLogger(L10n.class).info("Initialize L10n from {}", catalogFile);
+			LOGGER.info("Initialize L10n from {}", catalogFile);
 			
-			URL[] urls = {catalogFile.toURI().toURL()};
+			URL[] urls = {catalogFile.toURI().toURL(), L10n.class.getClassLoader().getResource("l10n")};
 			rbLoader = new URLClassLoader(urls, L10n.class.getClassLoader());
 		}
 		catch (Throwable t) {
