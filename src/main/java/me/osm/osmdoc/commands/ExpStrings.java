@@ -21,8 +21,8 @@ import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.KeyType;
 import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
+import me.osm.osmdoc.model.Tag.Val;
 
 import org.apache.commons.lang3.StringUtils;
 

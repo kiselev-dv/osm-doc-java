@@ -24,10 +24,10 @@ import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
 import me.osm.osmdoc.model.LangString;
 import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tag.TagValueType;
-import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
 import me.osm.osmdoc.model.Trait;
+import me.osm.osmdoc.model.Tag.TagValueType;
+import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.read.tagvalueparsers.OpeningHoursParser;
 import me.osm.osmdoc.read.tagvalueparsers.TagValueParser;
 import me.osm.osmdoc.read.tagvalueparsers.TagValueParsersFactory;
@@ -241,8 +241,8 @@ public class OSMDocFacade {
 
 		for(Feature pc : poiClassess) {
 			//Get more tags from traits
-			for(String trait : pc.getTrait()) {
-				trait = StringUtils.strip(trait);
+			for(Feature.Trait traitO : pc.getTrait()) {
+				String trait = StringUtils.strip(traitO.getValue());
 				collectMoreTags(trait, new HashSet<String>(), result);
 			}
 			

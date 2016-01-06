@@ -41,10 +41,10 @@ import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.KeyType;
 import me.osm.osmdoc.model.MoreTags;
 import me.osm.osmdoc.model.ObjectFactory;
+import me.osm.osmdoc.model.Tags;
 import me.osm.osmdoc.model.Tag.TagValueType;
 import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tag.Val.MatchType;
-import me.osm.osmdoc.model.Tags;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -319,7 +319,9 @@ public class OsmDocGenerator {
 		}
 
 		if(catalogItem.isPoi()) {
-			feature.getTrait().add("poi");
+			Feature.Trait poiTrait = new Feature.Trait();
+			poiTrait.setValue("poi");
+			feature.getTrait().add(poiTrait);
 		}
 
 		setIcon(catalogItem, feature);

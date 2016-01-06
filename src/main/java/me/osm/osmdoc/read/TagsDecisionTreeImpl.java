@@ -12,8 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.model.Tags;
+import me.osm.osmdoc.model.Tag.Val;
 
 public class TagsDecisionTreeImpl implements TagsDecisionTree {
 
