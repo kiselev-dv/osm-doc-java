@@ -8,13 +8,15 @@ import me.osm.osmdoc.model.Tag;
 public class TagValueParsersFactory {
 	
 	private static final EchoParser echoParser = new EchoParser();
-	private static final BooleanParser booleanParser = new BooleanParser();
 	private static final DateParser dateParser = new DateParser();
 	private static final NumberParser numberParser = new NumberParser();
 	private static final OpeningHoursParser ohParser = new OpeningHoursParser();
 	
 	private static final Map<String, EnumParser> enumParsers = 
 			new HashMap<String, EnumParser>();
+
+	private static final Map<String, BooleanParser> boolParsers = 
+			new HashMap<String, BooleanParser>();
 	
 	public static TagValueParser getParser(Tag tag) {
 		
@@ -37,7 +39,20 @@ public class TagValueParsersFactory {
 	}
 
 	private static TagValueParser booleanParser(Tag tag) {
-		return booleanParser;
+		String key = tag.getKey().getValue();
+		BooleanParser parser = boolParsers.get(key);
+		
+		if(parser == null) {
+			synchronized (boolParsers) {
+				parser = boolParsers.get(key);
+				if(parser == null) {
+					parser = new BooleanParser(tag);
+					boolParsers.put(key, parser);
+				}
+			}
+		}
+		
+		return parser;
 	}
 
 	private static TagValueParser enumParser(Tag tag) {

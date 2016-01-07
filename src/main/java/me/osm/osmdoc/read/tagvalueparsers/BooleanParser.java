@@ -1,11 +1,23 @@
 package me.osm.osmdoc.read.tagvalueparsers;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.List;
+
+import me.osm.osmdoc.model.Tag;
+import me.osm.osmdoc.model.Tag.Val;
 
 
 public class BooleanParser implements TagValueParser {
 	
-	private static final boolean NOT_EMPTY_IS_TRUE = true;
+	private Boolean def = null;
+	
+	public BooleanParser(Tag tag) {
+		List<Val> val = tag.getVal();
+		for (Val v : val) {
+			if(v.isDefault() != null) {
+				def = Boolean.valueOf(v.getValue());
+			}
+		}
+	}
 
 	@Override
 	public Object parse(String rawValue) {
@@ -23,11 +35,7 @@ public class BooleanParser implements TagValueParser {
 			return null;
 		}
 		
-		if(NOT_EMPTY_IS_TRUE && StringUtils.isNotBlank(lowerCase)) {
-			return true;
-		}
-		
-		return null;
+		return def;
 	}
 
 }
