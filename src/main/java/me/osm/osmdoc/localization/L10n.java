@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +81,8 @@ public class L10n {
 		
 		String result = trOrNull(key, locale);
 		
-		if(result == null) {
-			LOGGER.warn("Localization key: {} not found for locale {}.", key, locale.toLanguageTag());
+		if(result == null && StringUtils.isNotEmpty(key)) {
+			LOGGER.warn("Localization key: {} not found for locale {}.", key, locale);
 			return key;
 		}
 		
