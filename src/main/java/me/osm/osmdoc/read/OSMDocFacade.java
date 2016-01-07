@@ -22,7 +22,9 @@ import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Fref;
 import me.osm.osmdoc.model.Group;
 import me.osm.osmdoc.model.Hierarchy;
+import me.osm.osmdoc.model.KeyType;
 import me.osm.osmdoc.model.LangString;
+import me.osm.osmdoc.model.MoreTags;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.model.Tags;
 import me.osm.osmdoc.model.Trait;
@@ -32,6 +34,8 @@ import me.osm.osmdoc.read.tagvalueparsers.OpeningHoursParser;
 import me.osm.osmdoc.read.tagvalueparsers.TagValueParser;
 import me.osm.osmdoc.read.tagvalueparsers.TagValueParsersFactory;
 import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
+import me.osm.osmdoc.read.util.TraitsParenFirstNavigator;
+import me.osm.osmdoc.read.util.TraitsVisitor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -203,6 +207,14 @@ public class OSMDocFacade {
 		return featureByName.get(poiClass);
 	}
 
+	public Collection<Feature> getFeature(Collection<String> poiClass) {
+		List<Feature> result = new ArrayList<>(poiClass.size());
+		for(String s : poiClass) {
+			result.add(featureByName.get(s));
+		}
+		return result;
+	}
+
 	public String getTranslatedTitle(Feature fClass, Locale lang) {
 		return L10n.tr(fClass.getTitle(), lang);
 	}
@@ -230,37 +242,50 @@ public class OSMDocFacade {
 		
 	}
 
-	public LinkedHashMap<String, Tag> getMoreTags(Collection<Feature> poiClassess) {
+	public LinkedHashMap<String, Tag> collectMoreTags(Collection<Feature> poiClassess, 
+			LinkedHashSet<String> visitedTraits) {
 		
-		return getMoreTags(poiClassess, new HashSet<String>());
-	}
-	
-	public LinkedHashMap<String, Tag> getMoreTags(Collection<Feature> poiClassess, Set<String> visitedTraits) {
+		List collected = collectTagsWithTraits(poiClassess, visitedTraits, false);
 		
-		LinkedHashMap<String, Tag> result = new LinkedHashMap<>();
-
-		for(Feature pc : poiClassess) {
-			//Get more tags from traits
-			for(Feature.Trait traitO : pc.getTrait()) {
-				String trait = StringUtils.strip(traitO.getValue());
-				collectMoreTags(trait, new HashSet<String>(), result);
-			}
-			
-			//Get more tags from feture
-			if(pc.getMoreTags() != null) {
-				for(Tag tag : pc.getMoreTags().getTag()) {
-					result.put(tag.getKey().getValue(), tag);
-				}
-			}
-		}
+		LinkedHashMap<String, Tag> result = tagsAndTraitsAsTagsMap(collected);
 		
 		return result;
 	}
 
+	private LinkedHashMap<String, Tag> tagsAndTraitsAsTagsMap(List collected) {
+		LinkedHashMap<String, Tag> result = new LinkedHashMap();
+		for(Object o : collected) {
+			if (o instanceof Trait) {
+				MoreTags moreTags = ((Trait) o).getMoreTags();
+				if(moreTags != null && moreTags.getTag() != null) {
+					for(Tag t : moreTags.getTag()) {
+						result.put(t.getKey().getValue(), t);
+					}
+				}
+			}
+			else if (o instanceof MoreTags) {
+				List<Tag> tags = ((MoreTags) o).getTag();
+				if(tags != null) {
+					for(Tag t : tags) {
+						result.put(t.getKey().getValue(), t);
+					}
+				}
+			}
+			else if (o instanceof Tag) {
+				result.put(((Tag)o).getKey().getValue(), (Tag)o);
+			}
+		}
+		return result;
+	}
+
+	public LinkedHashMap<String, Tag> collectMoreTags(Collection<Feature> poiClassess) {
+		return collectMoreTags(poiClassess, new LinkedHashSet<String>());
+	}
+	
 	public JSONObject parseMoreTags(List<Feature> poiClassess, JSONObject properties, 
 			TagsStatisticCollector statistics, Map<String, List<Val>> fillVals) {
 		
-		LinkedHashMap<String, Tag> moreTags = getMoreTags(poiClassess);
+		LinkedHashMap<String, Tag> moreTags = collectMoreTags(poiClassess);
 		JSONObject result = new JSONObject();
 		
 		for(Entry<String, Tag> template : moreTags.entrySet()) {
@@ -365,35 +390,84 @@ public class OSMDocFacade {
 	private TagValueParser getTagValueParser(Tag tag) {
 		return TagValueParsersFactory.getParser(tag);
 	}
-
-	private void collectMoreTags(String traitName, HashSet<String> visitedTraits,
-			LinkedHashMap<String, Tag> tags) {
+	
+	public List<?> collectTagsWithTraits(Collection<Feature> features, 
+			LinkedHashSet<String> visitedTraits, boolean onlyCommon ) {
 		
-		Trait trait = docReader.getTraits().get(traitName);
-		if(trait != null && visitedTraits.add(traitName)) {
-			for(String extend : trait.getExtends()) {
-				extend = StringUtils.strip(extend);
-				collectMoreTags(extend, visitedTraits, tags);
+		TraitsParenFirstNavigator nav = new TraitsParenFirstNavigator(this);
+		Map<String, Integer> traitsCount = new LinkedHashMap<String, Integer>();
+		
+		HashMap<String, Tag> tags = new HashMap<>();
+		LinkedHashMap<String, Integer> tagsCounts = new LinkedHashMap<>();
+		
+		for(Feature feature : features) {
+			
+			LinkedHashSet<String> visited = new LinkedHashSet<String>();
+			nav.visit(feature, TraitsVisitor.VOID_VISITOR, visited);
+			visitedTraits.addAll(visited);
+			for(String s : visited) {
+				if(traitsCount.get(s) == null) {
+					traitsCount.put(s, 0);
+				}
+				traitsCount.put(s, traitsCount.get(s) + 1);
 			}
 			
-			if(trait.getMoreTags() != null) {
-				for(Tag tag : trait.getMoreTags().getTag()) {
-					if(!tags.containsKey(tag.getKey().getValue())) {
-						tags.put(tag.getKey().getValue(), tag);
+			MoreTags moreTags = feature.getMoreTags();
+			if(moreTags != null && moreTags.getTag() != null) {
+				for(Tag tg : moreTags.getTag()) {
+					String tagKey = tg.getKey().getValue();
+					if(tagsCounts.get(tagKey) == null) {
+						tagsCounts.put(tagKey, 0);
 					}
+					tagsCounts.put(tagKey, tagsCounts.get(tagKey) + 1);
+					tags.put(tagKey, tg);
 				}
-				for(Choise ch : trait.getMoreTags().getChoise()) {
-					for(Tag tag : ch.getTag()) {
-						if(!tags.containsKey(tag.getKey().getValue())) {
-							tags.put(tag.getKey().getValue(), tag);
-						}
-					}
-				}
-				
 			}
 		}
+		
+		List<Object> result = new ArrayList<>();
+		
+		for(Map.Entry<String, Integer> traitsEntry : traitsCount.entrySet()) {
+			// Every feature has that trait
+			if(onlyCommon && traitsEntry.getValue() != features.size()) {
+				continue;
+			}
+			
+			Trait trait = getTraitByName(traitsEntry.getKey());
+			if(trait.isGroupTags()) {
+				result.add(trait);
+			}
+			else {
+				result.add(trait.getMoreTags());
+			}
+		}
+		
+		
+		for(Map.Entry<String, Integer> tagEntry : tagsCounts.entrySet()) {
+			if(onlyCommon && tagEntry.getValue() != features.size()) {
+				continue;
+			}
+			
+			String tagKey = tagEntry.getKey();
+			Tag tag = tags.get(tagKey);
+			
+			result.add(tag);
+		}
+		
+		return result;
 	}
 	
+	public Trait getTraitByName(String trait) {
+		return docReader.getTraits().get(trait);
+	} 
+
+	public Trait getTraitByRef(Feature.Trait trait) {
+		if(trait != null) {
+			return docReader.getTraits().get(trait.getValue());
+		}
+		return null;
+	} 
+
 	public JSONObject featureAsJSON(Feature f, Locale lang) {
 		
 		JSONObject result = new JSONObject();
@@ -432,13 +506,13 @@ public class OSMDocFacade {
 		result.put("keywords", keywords);
 		
 		LinkedHashSet<String> traits = new LinkedHashSet<String>();
-		LinkedHashMap<String, Tag> moreTags = getMoreTags(Arrays.asList(f), traits);
+		LinkedHashMap<String, Tag> moreTags = collectMoreTags(Arrays.asList(f), traits);
 
 		result.put("traits", new JSONArray(traits));
 		
 		JSONObject moreTagsJS = new JSONObject();
 		for(Entry<String, Tag> tagE : moreTags.entrySet()) {
-			moreTagsJS.put(tagE.getKey(), translateTagValues(tagE.getValue(), lang));
+			moreTagsJS.put(tagE.getKey(), tagValuesAsJSON(tagE.getValue(), lang));
 		}
 		
 		result.put("more_tags", moreTagsJS);
@@ -446,7 +520,7 @@ public class OSMDocFacade {
 		return result;
 	}
 
-	private JSONObject translateTagValues(Tag tag, Locale lang) {
+	private JSONObject tagValuesAsJSON(Tag tag, Locale lang) {
 		JSONObject tagJS = new JSONObject();
 		
 		if(lang == null) {
@@ -546,7 +620,7 @@ public class OSMDocFacade {
 	public Map<String, String> listMoreTagsTypes() {
 		Map<String, String> result = new HashMap<String, String>();
 
-		LinkedHashMap<String, Tag> moreTags = getMoreTags(featureByName.values());
+		LinkedHashMap<String, Tag> moreTags = collectMoreTags(featureByName.values());
 		
 		for(Entry<String, Tag> e : moreTags.entrySet()) {
 			result.put(e.getKey(), e.getValue().getTagValueType().name());
@@ -558,5 +632,84 @@ public class OSMDocFacade {
 	public DOCReader getReader() {
 		return docReader;
 	}
+
+	public JSONObject collectCommonTagsWithTraitsJSON(Collection<Feature> features, Locale lang) {
+		List<?> collected = collectTagsWithTraits(features, new LinkedHashSet<String>(), true);
+		
+		JSONArray tagOptions = new JSONArray();
+		LinkedHashMap<String, Tag> groupedTags = new LinkedHashMap();
+		for(Object o : collected) {
+			if (o instanceof Trait) {
+				JSONObject tagsAsVals = new JSONObject();
+				tagOptions.put(tagsAsVals);
+				
+				JSONArray options = new JSONArray();
+				tagsAsVals.put("key", "trait_" + ((Trait) o).getName());
+				tagsAsVals.put("title", L10n.tr(((Trait) o).getTitle(), lang));
+				tagsAsVals.put("type", "GROUP_TRAIT");
+				tagsAsVals.put("options", options);
+				
+				MoreTags moreTags = ((Trait) o).getMoreTags();
+				if(moreTags != null && moreTags.getTag() != null) {
+					for(Tag t : moreTags.getTag()) {
+						groupedTags.put(t.getKey().getValue(), t);
+						
+						JSONObject option = new JSONObject();
+						options.put(option);
+						
+						option.put("valueKey", t.getKey().getValue());
+						option.put("valueTitle", L10n.tr(t.getTitle(), lang));
+					}
+				}
+			}
+			else if (o instanceof MoreTags) {
+				List<Tag> tags = ((MoreTags) o).getTag();
+				if(tags != null) {
+					for(Tag t : tags) {
+						JSONObject tag = tagAsJSONOption(t, lang);
+						tagOptions.put(tag);
+					}
+				}
+			}
+			else if (o instanceof Tag) {
+				JSONObject tag = tagAsJSONOption((Tag) o, lang);
+				tagOptions.put(tag);
+			}
+		}
+		
+		JSONObject grouped = new JSONObject();
+		for(Tag t : groupedTags.values()) {
+			grouped.put(t.getKey().getValue(), tagAsJSONOption(t, lang));
+		}
+		
+		JSONObject result = new JSONObject();
+		result.put("groupedTags", grouped);
+		result.put("commonTagOptions", tagOptions);
+		
+		return result;
+	}
+
+	private JSONObject tagAsJSONOption(Tag t, Locale lang) {
+		JSONObject result = new JSONObject();
+		result.put("key", t.getKey().getValue());
+		result.put("title", L10n.tr(t.getTitle(), lang));
+		result.put("type", t.getTagValueType().toString());
+		
+		if(t.getTagValueType() == TagValueType.ENUM) {
+			JSONArray options = new JSONArray();
+			result.put("options", options);
+			
+			for(Val v : t.getVal()) {
+				JSONObject option = new JSONObject();
+				options.put(option);
+				
+				option.put("valueKey", v.getValue());
+				option.put("valueTitle", L10n.tr(v.getTitle(), lang));
+			}
+		}
+		
+		return result;
+	}
+
 	
 }
