@@ -1,7 +1,5 @@
 package me.osm.osmdoc.read;
 
-import static me.osm.osmdoc.localization.L10n.tr;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,19 +15,19 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import me.osm.osmdoc.localization.L10n;
-import me.osm.osmdoc.model.Choise;
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.Fref;
-import me.osm.osmdoc.model.Group;
-import me.osm.osmdoc.model.Hierarchy;
-import me.osm.osmdoc.model.KeyType;
-import me.osm.osmdoc.model.LangString;
-import me.osm.osmdoc.model.MoreTags;
-import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tags;
-import me.osm.osmdoc.model.Trait;
-import me.osm.osmdoc.model.Tag.TagValueType;
-import me.osm.osmdoc.model.Tag.Val;
+import me.osm.osmdoc.model.v2.Choise;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.Fref;
+import me.osm.osmdoc.model.v2.Group;
+import me.osm.osmdoc.model.v2.Hierarchy;
+import me.osm.osmdoc.model.v2.KeyType;
+import me.osm.osmdoc.model.v2.LangString;
+import me.osm.osmdoc.model.v2.MoreTags;
+import me.osm.osmdoc.model.v2.Tag;
+import me.osm.osmdoc.model.v2.Tags;
+import me.osm.osmdoc.model.v2.Trait;
+import me.osm.osmdoc.model.v2.Tag.Val;
+
 import me.osm.osmdoc.read.tagvalueparsers.OpeningHoursParser;
 import me.osm.osmdoc.read.tagvalueparsers.TagValueParser;
 import me.osm.osmdoc.read.tagvalueparsers.TagValueParsersFactory;
@@ -165,6 +163,7 @@ public class OSMDocFacade {
 		return null;
 		
 	}
+	
 
 	private void dfsGroup(JSONObject gjs, List<Group> groups, List<Fref> fref, Locale lang) {
 		
@@ -199,12 +198,33 @@ public class OSMDocFacade {
 		
 	}
 
+	private String tr(List<LangString> strings, Locale lang) {
+		
+		if (lang != null) {
+			String languageTag = lang.toLanguageTag();
+			for(LangString string : strings) {
+				if(languageTag.equals(string.getLang())) {
+					return string.getValue();
+				}
+			}
+		} 
+		else if(strings != null && !strings.isEmpty()) {
+			return strings.get(0).getValue();
+		}
+		
+		return null;
+	}
+
 	public TagsDecisionTreeImpl getPoiClassificator() {
 		return dTree;
 	}
 
 	public Feature getFeature(String poiClass) {
 		return featureByName.get(poiClass);
+	}
+	
+	public Feature getFeature(Fref fref) {
+		return featureByName.get(fref.getRef());
 	}
 
 	public Collection<Feature> getFeature(Collection<String> poiClass) {
@@ -216,16 +236,16 @@ public class OSMDocFacade {
 	}
 
 	public String getTranslatedTitle(Feature fClass, Locale lang) {
-		return L10n.tr(fClass.getTitle(), lang);
+		return tr(fClass.getTitle(), lang);
 	}
 
 	public String getTranslatedTitle(Feature fClass, Tag td, Locale lang) {
-		return L10n.tr(td.getTitle(), lang);
+		return tr(td.getTitle(), lang);
 	}
 
 	public String getTranslatedTitle(Feature fClass, Val valuePattern,
 			Locale lang) {
-		return L10n.tr(valuePattern.getTitle(), lang);
+		return tr(valuePattern.getTitle(), lang);
 	}
 
 	public List<String> listPoiClassNames(Collection<Feature> poiClassess) {
@@ -245,15 +265,15 @@ public class OSMDocFacade {
 	public LinkedHashMap<String, Tag> collectMoreTags(Collection<Feature> poiClassess, 
 			LinkedHashSet<String> visitedTraits) {
 		
-		List collected = collectTagsWithTraits(poiClassess, visitedTraits, false);
+		List<?> collected = collectTagsWithTraits(poiClassess, visitedTraits, false);
 		
 		LinkedHashMap<String, Tag> result = tagsAndTraitsAsTagsMap(collected);
 		
 		return result;
 	}
 
-	private LinkedHashMap<String, Tag> tagsAndTraitsAsTagsMap(List collected) {
-		LinkedHashMap<String, Tag> result = new LinkedHashMap();
+	private LinkedHashMap<String, Tag> tagsAndTraitsAsTagsMap(List<?> collected) {
+		LinkedHashMap<String, Tag> result = new LinkedHashMap<>();
 		for(Object o : collected) {
 			if (o instanceof Trait) {
 				MoreTags moreTags = ((Trait) o).getMoreTags();
@@ -283,7 +303,8 @@ public class OSMDocFacade {
 	}
 	
 	public JSONObject parseMoreTags(List<Feature> poiClassess, JSONObject properties, 
-			TagsStatisticCollector statistics, Map<String, List<Val>> fillVals) {
+			TagsStatisticCollector statistics, Map<String, List<Val>> fillVals, 
+			boolean keepUnmatched) {
 		
 		LinkedHashMap<String, Tag> moreTags = collectMoreTags(poiClassess);
 		JSONObject result = new JSONObject();
@@ -309,7 +330,6 @@ public class OSMDocFacade {
 						
 						parsedValue = parser.parse(rawValue);
 						
-						
 						if(parsedValue != null) {
 							Val val = null;
 							
@@ -321,6 +341,9 @@ public class OSMDocFacade {
 							statistics.success(parsedValue, tag, val, rawValue, parser, poiClassess);
 							
 							fillVals(fillVals, tag, parsedValue);
+						}
+						else if(keepUnmatched) {
+							parsedValue = rawValue;
 						}
 						
 					}
@@ -346,8 +369,11 @@ public class OSMDocFacade {
 								
 								fillVals(fillVals, tag, pv);
 							}
+							else if(keepUnmatched) {
+								((JSONArray)parsedValue).put(v);
+							}
 							else {
-								statistics.failed(tag, rawValue, parser, poiClassess);
+								statistics.failed(tag, v, parser, poiClassess);
 							}
 						}
 						
@@ -524,24 +550,33 @@ public class OSMDocFacade {
 		JSONObject tagJS = new JSONObject();
 		
 		if(lang == null) {
-			tagJS.put("name", tag.getTitle());
+			JSONObject titleByLang = new JSONObject(); 
+			for(String lt : L10n.supported) {
+				titleByLang.put(lt, 
+						tr(tag.getTitle(), Locale.forLanguageTag(lt)));
+			}
+			tagJS.put("name", titleByLang);
 		}
 		else {
-			tagJS.put("name", L10n.tr(tag.getTitle(), lang));
+			tagJS.put("name", tr(tag.getTitle(), lang));
 		}
 		
 		JSONObject valuesJS = new JSONObject();
 		tagJS.put("valueType", tag.getTagValueType());
 		
-		if(tag.getTagValueType() != TagValueType.BOOLEAN) {
+		if("boolean".equals(tag.getTagValueType())) {
 			for(Val val : tag.getVal()) {
 				JSONObject value = new JSONObject();
-				String valTrKey = StringUtils.strip(val.getTitle());
 				if(lang == null) {
-					value.put("name", valTrKey);
+					JSONObject titleByLang = new JSONObject(); 
+					for(String lt : L10n.supported) {
+						titleByLang.put(lt, 
+								tr(val.getTitle(), Locale.forLanguageTag(lt)));
+					}
+					value.put("name", titleByLang);
 				}
 				else {
-					value.put("name", L10n.tr(valTrKey, lang));
+					value.put("name", tr(val.getTitle(), lang));
 				}
 				value.put("group", val.isGroupByValue());
 				
@@ -623,7 +658,7 @@ public class OSMDocFacade {
 		LinkedHashMap<String, Tag> moreTags = collectMoreTags(featureByName.values());
 		
 		for(Entry<String, Tag> e : moreTags.entrySet()) {
-			result.put(e.getKey(), e.getValue().getTagValueType().name());
+			result.put(e.getKey(), e.getValue().getTagValueType());
 		}
 		
 		return result;
@@ -637,7 +672,7 @@ public class OSMDocFacade {
 		List<?> collected = collectTagsWithTraits(features, new LinkedHashSet<String>(), true);
 		
 		JSONArray tagOptions = new JSONArray();
-		LinkedHashMap<String, Tag> groupedTags = new LinkedHashMap();
+		LinkedHashMap<String, Tag> groupedTags = new LinkedHashMap<>();
 		for(Object o : collected) {
 			if (o instanceof Trait) {
 				JSONObject tagsAsVals = new JSONObject();
@@ -645,7 +680,7 @@ public class OSMDocFacade {
 				
 				JSONArray options = new JSONArray();
 				tagsAsVals.put("key", "trait_" + ((Trait) o).getName());
-				tagsAsVals.put("title", L10n.tr(((Trait) o).getTitle(), lang));
+				tagsAsVals.put("title", tr(((Trait) o).getTitle(), lang));
 				tagsAsVals.put("type", "GROUP_TRAIT");
 				tagsAsVals.put("options", options);
 				
@@ -658,7 +693,7 @@ public class OSMDocFacade {
 						options.put(option);
 						
 						option.put("valueKey", t.getKey().getValue());
-						option.put("valueTitle", L10n.tr(t.getTitle(), lang));
+						option.put("valueTitle", tr(t.getTitle(), lang));
 					}
 				}
 			}
@@ -692,10 +727,10 @@ public class OSMDocFacade {
 	private JSONObject tagAsJSONOption(Tag t, Locale lang) {
 		JSONObject result = new JSONObject();
 		result.put("key", t.getKey().getValue());
-		result.put("title", L10n.tr(t.getTitle(), lang));
+		result.put("title", tr(t.getTitle(), lang));
 		result.put("type", t.getTagValueType().toString());
 		
-		if(t.getTagValueType() == TagValueType.ENUM) {
+		if("enum".equals(t.getTagValueType())) {
 			JSONArray options = new JSONArray();
 			result.put("options", options);
 			
@@ -704,12 +739,11 @@ public class OSMDocFacade {
 				options.put(option);
 				
 				option.put("valueKey", v.getValue());
-				option.put("valueTitle", L10n.tr(v.getTitle(), lang));
+				option.put("valueTitle", tr(v.getTitle(), lang));
 			}
 		}
 		
 		return result;
 	}
-
 	
 }

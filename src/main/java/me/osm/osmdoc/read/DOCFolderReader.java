@@ -15,10 +15,10 @@ import java.util.Set;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import me.osm.osmdoc.model.DocPart;
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.Hierarchy;
-import me.osm.osmdoc.model.Trait;
+import me.osm.osmdoc.model.v2.DocPart;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.Hierarchy;
+import me.osm.osmdoc.model.v2.Trait;
 
 public class DOCFolderReader extends AbstractReader {
 	
@@ -50,8 +50,8 @@ public class DOCFolderReader extends AbstractReader {
 	private void parse(File root) {
 		
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance("me.osm.osmdoc.model", 
-					me.osm.osmdoc.model.ObjectFactory.class.getClassLoader());
+			JAXBContext jaxbContext = JAXBContext.newInstance("me.osm.osmdoc.model.v2", 
+					me.osm.osmdoc.model.v2.ObjectFactory.class.getClassLoader());
 			
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			

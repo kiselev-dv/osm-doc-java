@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.Fref;
-import me.osm.osmdoc.model.Group;
-import me.osm.osmdoc.model.Hierarchy;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.Fref;
+import me.osm.osmdoc.model.v2.Group;
+import me.osm.osmdoc.model.v2.Hierarchy;
 
 public abstract class AbstractReader implements DOCReader {
 

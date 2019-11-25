@@ -10,10 +10,10 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tags;
-import me.osm.osmdoc.model.Tag.Val;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.Tag;
+import me.osm.osmdoc.model.v2.Tags;
+import me.osm.osmdoc.model.v2.Tag.Val;
 
 public class TagsDecisionTreeImpl implements TagsDecisionTree {
 

@@ -31,7 +31,7 @@ public class L10n {
 	private L10n(Locale locale) {
 		if(catalogPath == null) {
 			URL[] urls = {L10n.class.getClassLoader().getResource("l10n")};
-			strings = ResourceBundle.getBundle("strings", locale, 
+			strings = ResourceBundle.getBundle("l10n.strings", locale, 
 					new URLClassLoader(urls, L10n.class.getClassLoader()));
 		}
 		else {

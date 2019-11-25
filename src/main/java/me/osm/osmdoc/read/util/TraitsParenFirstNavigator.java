@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import me.osm.osmdoc.model.Feature;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.Trait;
 import me.osm.osmdoc.read.OSMDocFacade;
-import me.osm.osmdoc.model.Trait;
 
 public class TraitsParenFirstNavigator {
 

@@ -7,12 +7,11 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tag.Val;
-import me.osm.osmdoc.model.Tag.Val.MatchType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import me.osm.osmdoc.model.v2.Tag;
+import me.osm.osmdoc.model.v2.Tag.Val;
 
 public class EnumParser implements TagValueParser {
 	
@@ -27,20 +26,19 @@ public class EnumParser implements TagValueParser {
 	public EnumParser(Tag tag, boolean strict) {
 		List<Val> values = tag.getVal();
 		for(Val val : values) {
-			String title = val.getTitle();
-			MatchType match = val.getMatch();
+			String match = val.getMatch();
 			
 			//TODO: multiple values
-			if(MatchType.EXACT == match) {
+			if(match.equals("exact") ) {
 				exacts.put(val.getValue().toLowerCase(), val);
 			}
-			else if(MatchType.CONTAINS == match || MatchType.WITH_NAMESPACE == match) {
+			else if(match.equals("contains") || match.equals("with_namespace")) {
 				contains.put(val.getValue().toLowerCase(), val);
 			}
-			else if(MatchType.ANY == match) {
-				anyMatch = title;
+			else if(match.equals("any")) {
+				anyMatch = val.getValue();
 			}
-			else if(MatchType.REGEXP == match) {
+			else if(match.equals("regexp")) {
 				try{
 					regexp.put(Pattern.compile(val.getValue()), val);
 				}

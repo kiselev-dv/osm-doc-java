@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.Hierarchy;
-import me.osm.osmdoc.model.Trait;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.Hierarchy;
+import me.osm.osmdoc.model.v2.Trait;
 
 public interface DOCReader {
 

@@ -3,7 +3,7 @@ package me.osm.osmdoc.read.tagvalueparsers;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.osm.osmdoc.model.Tag;
+import me.osm.osmdoc.model.v2.Tag;
 
 public class TagValueParsersFactory {
 	
@@ -20,19 +20,19 @@ public class TagValueParsersFactory {
 	
 	public static TagValueParser getParser(Tag tag) {
 		
-		switch(tag.getTagValueType()) {
+		switch(tag.getTagValueType().toLowerCase()) {
 		
-		case ANY_STRING: return echoParser();
+		case "any_string": return echoParser();
 		
-		case ENUM: return enumParser(tag);
+		case "enum": return enumParser(tag);
 
-		case BOOLEAN: return booleanParser(tag);
+		case "boolean": return booleanParser(tag);
 		
-		case DATE: return dateParser;
+		case "date": return dateParser;
 		
-		case NUMBER: return numberParser;
+		case "number": return numberParser;
 		
-		case OPEN_HOURS: return ohParser;
+		case "open_hours": return ohParser;
 		
 		default: return echoParser();
 		}

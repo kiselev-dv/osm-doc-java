@@ -1,6 +1,6 @@
 package me.osm.osmdoc.read.util;
 
-import me.osm.osmdoc.model.Trait;
+import me.osm.osmdoc.model.v2.Trait;
 
 public interface TraitsVisitor {
 	

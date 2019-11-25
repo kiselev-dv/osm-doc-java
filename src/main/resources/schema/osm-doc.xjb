@@ -12,7 +12,7 @@
 		</jaxb:globalBindings>
 
 		<jaxb:schemaBindings>
-			<jaxb:package name="me.osm.osmdoc.model" />
+			<jaxb:package name="me.osm.osmdoc.model.v2" />
 		</jaxb:schemaBindings>
 		
 		<jaxb:bindings node="//xs:attribute[@name='match']/xs:simpleType">

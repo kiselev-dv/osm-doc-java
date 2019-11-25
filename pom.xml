@@ -1,15 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.osm.osm-doc</groupId>
 	<artifactId>osm-doc-java</artifactId>
-	<version>1.5</version>
+	<version>2.0</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<github.global.server>github.com</github.global.server>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -25,9 +26,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/jaxb/activation -->
 		<dependency>
-		    <groupId>jaxb</groupId>
-		    <artifactId>activation</artifactId>
-		    <version>1.0.2</version>
+			<groupId>jaxb</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -65,6 +66,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.6</version>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -101,47 +108,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.1.1</version>
-				<executions>
-					<execution>
-						<id>download_strings_en</id>
-						<phase>package</phase>
-						<goals>
-							<goal>java</goal>
-						</goals>
-						<configuration>
-							<mainClass>me.osm.osmdoc.processing.GenerateL10NSources</mainClass>
-							<arguments>
-								<argument>${project.build.resources[0].directory}/l10n/strings_en.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_en.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_tags_en.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/hierarchy_en.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/trait_en.properties</argument>
-							</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>download_strings_ru</id>
-						<phase>package</phase>
-						<goals>
-							<goal>java</goal>
-						</goals>
-						<configuration>
-							<mainClass>me.osm.osmdoc.processing.GenerateL10NSources</mainClass>
-							<arguments>
-								<argument>${project.build.resources[0].directory}/l10n/strings_ru.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_ru.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/feature_tags_ru.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/hierarchy_ru.properties</argument>
-								<argument>https://raw.githubusercontent.com/kiselev-dv/osm-doc/master/l10n/trait_ru.properties</argument>
-							</arguments>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.10.3</version>
@@ -165,13 +131,13 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	</build>
 
 	<distributionManagement>
-        <repository>
-            <id>myMavenRepo.write</id>
-            <url>${myMavenRepo.write.url}</url>
-        </repository>
-    </distributionManagement>
+		<repository>
+			<id>myMavenRepoWrite</id>
+			<url>${myMavenRepoWriteUrl}</url>
+		</repository>
+	</distributionManagement>
 
-    <scm>
+	<scm>
 		<connection>scm:git:https://github.com/kiselev-dv/osm-doc-java.git</connection>
 		<developerConnection>scm:git:https://github.com/kiselev-dv/osm-doc-java.git</developerConnection>
 		<url>https://github.com/kiselev-dv/osm-doc-java</url>
