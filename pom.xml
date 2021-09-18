@@ -38,15 +38,15 @@
 			<artifactId>jaxb-impl</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/jaxb/activation -->
 		<dependency>
 			<groupId>jaxb</groupId>
 			<artifactId>activation</artifactId>
 			<version>1.0.2</version>
 		</dependency>
-		
-		
+
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-io</artifactId>
@@ -149,8 +149,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>myMavenRepoWrite</id>
-			<url>${myMavenRepoWriteUrl}</url>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/kiselev-dv/osm-doc-java/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
 		</repository>
 	</distributionManagement>
 
